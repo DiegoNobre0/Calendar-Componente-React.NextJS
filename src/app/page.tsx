@@ -1,5 +1,4 @@
 'use client'
-
 import Image from 'next/image'
 import styles from './page.module.css'
 import Accordion from '@mui/material/Accordion';
@@ -11,7 +10,7 @@ import TextField, { OutlinedTextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useDrop } from "react-dnd";
 
 
@@ -21,25 +20,25 @@ export default function Home() {
   const [expanded, setExpanded] = useState<string | false>(false);
   const [expanded2, setExpanded2] = useState<string | false>(false);
 
-  const reservations = 
-  [
-    {
-        "IdReserva": 2,
-        "Cliente": "Nome do Cliente 1",
-        "IdImovel": 1,
-        "IdHotel": 1,
-        "CheckIn": "11/08/2023",
-        "CheckOut": "13/08/2023"
-    },
-    {
-        "IdReserva": 2,
-        "Cliente": "Nome do Cliente 2",
-        "IdImovel": 2,
-        "IdHotel": 1,
-        "CheckIn": "12/08/2023",
-        "CheckOut": "16/08/2023"
-    }
-];
+//   const reservations = 
+//   [
+//     {
+//         "IdReserva": 2,
+//         "Cliente": "Diego",
+//         "IdImovel": 1,
+//         "IdHotel": 1,
+//         "CheckIn": "1/08/2023",
+//         "CheckOut": "3/08/2023"
+//     },
+//     {
+//         "IdReserva": 2,
+//         "Cliente": "Kamyla",
+//         "IdImovel": 2,
+//         "IdHotel": 1,
+//         "CheckIn": "5/08/2023",
+//         "CheckOut": "6/08/2023"
+//     }
+// ];
 
 
     const handleChange1 =
@@ -59,27 +58,119 @@ export default function Home() {
     const onScroll = () => {   
       div2.current.scrollLeft = div1.current.scrollLeft;
     }
-
-   
-  
     
+   
 
-
-
-
+    const [clients, setClients] = useState<string[]>(['Diego']);
+    const initialCalendarState = Array.from({ length: 7 }, (_, index) => ({
+      date: index,
+      client: index < clients.length ? clients[index] : '',
+      entry: index < clients.length ? index + 1 : 0,
+      departure: index < clients.length ? index + 2 : 0,
+    }));
+    const [calendar, setCalendar] = useState(initialCalendarState);
+  
+    const allowDrop = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+    };
+  
+    const drop = (targetIndex: number) => {
+      if (draggedClient !== '' && selectedEntry !== null) {
+        const updatedCalendar = [...calendar];
+  
+        const previousIndex = updatedCalendar.findIndex(entry => entry.client === draggedClient);
+        if (previousIndex !== -1) {
+          updatedCalendar[previousIndex].client = '';
+        }
+  
+        updatedCalendar[targetIndex].client = draggedClient;
+        updatedCalendar[targetIndex].entry = selectedEntry;
+  
+        if (targetIndex + 1 < calendar.length) {
+          updatedCalendar[targetIndex].departure = updatedCalendar[targetIndex + 1].entry;
+        } else {
+          updatedCalendar[targetIndex].departure = selectedEntry + 1;
+        }
+  
+        console.log(`Moved to position: ${targetIndex}`);
+        console.log(`Entry Date: ${selectedEntry}`);
+        console.log(`Departure Date: ${updatedCalendar[targetIndex].departure}`);
+  
+        setCalendar(updatedCalendar);
+        setDraggedClient('');
+        setSelectedEntry(null);
+      }
+    };
+  
+    const [draggedClient, setDraggedClient] = useState<string>('');
+    const [selectedEntry, setSelectedEntry] = useState<number | null>(null);
+  
+    const startDrag = (e: React.DragEvent<HTMLDivElement>, client: string, entryDate: number) => {
+      setDraggedClient(client);
+      e.dataTransfer.setData('text/plain', client);
+      setSelectedEntry(entryDate);
+    };
+  
+    const handleDragEnd = () => {
+      setDraggedClient('');
+      setSelectedEntry(null);
+    };
   return (
     <main className={styles.main}>
 
 
 
 
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+      {calendar.map((entry, index) => (
+        <div
+          key={index}
+          style={{
+            display: 'grid',
+            padding: '0.1rem 0.5rem 0.1rem 0.5rem',
+            border: 'solid 1px',
+            fontSize: '10px',
+            position: 'relative',
+          }}
+          onDrop={() => drop(index)}
+          onDragOver={allowDrop}
+        >
+          <span>Set</span>
+          <span style={{ textAlign: 'center' }}>{entry.date + 1}</span>
+          {entry.client && (
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `calc(${entry.entry * 100}%)`,
+                  transform: 'translate(-50%, -50%)',
+                  width: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '5px',
+                  background: 'lightblue',
+                  borderRadius: '5px',
+                  zIndex: 1,
+                  cursor: 'move',
+                }}
+                draggable
+                onDragStart={(e) => startDrag(e, entry.client, entry.entry)}
+                onDragEnd={handleDragEnd}
+              >
+                {entry.client}
+              </div>
+              
+            </>
+          )}
+        </div>
+      ))}
+    </div>
 
 
 
-
-
-
-      <div style={{width:'80rem', paddingBottom:'2rem'}}>
+      <div style={{width:'80rem', paddingBottom:'2rem',paddingTop:'10rem'}}>
         <div>
           <Accordion expanded={expanded === 'panel1'} onChange={handleChange1('panel1')} >
             <AccordionSummary
