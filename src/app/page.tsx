@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import React, { useRef, useState, useEffect } from "react";
 import { useDrop } from "react-dnd";
-
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -24,7 +24,7 @@ export default function Home() {
 //   [
 //     {
 //         "IdReserva": 2,
-//         "Cliente": "Diego",
+//         "Cliente": "Hospede 1",
 //         "IdImovel": 1,
 //         "IdHotel": 1,
 //         "CheckIn": "1/08/2023",
@@ -32,13 +32,31 @@ export default function Home() {
 //     },
 //     {
 //         "IdReserva": 2,
-//         "Cliente": "Kamyla",
+//         "Cliente": "Hospede 2",
 //         "IdImovel": 2,
 //         "IdHotel": 1,
 //         "CheckIn": "5/08/2023",
 //         "CheckOut": "6/08/2023"
 //     }
 // ];
+
+
+const diasDaSemana: any = {
+  1: "Dom",
+  2: "Seg",
+  3: "Ter",
+  4: "Qua",
+  5: "Qui",
+  6: "Sex",
+  7: "Sáb"
+};
+const diasDoMes: any = {};
+    
+// Suponhamos que estejamos considerando um mês de 30 dias
+for (let dia = 1; dia <= 40; dia++) {
+    const numeroDoDiaDaSemana = (dia - 1) % 7 + 1;
+    diasDoMes[dia] = diasDaSemana[numeroDoDiaDaSemana];
+}
 
 
     const handleChange1 =
@@ -58,11 +76,17 @@ export default function Home() {
     const onScroll = () => {   
       div2.current.scrollLeft = div1.current.scrollLeft;
     }
+
+    const [accordionOpen, setAccordionOpen] = useState(true); // Initial state, accordion is open
+
+    const toggleAccordion = () => {
+      setAccordionOpen(!accordionOpen); // Toggle the accordion state
+    };
     
    
 
-    const [clients, setClients] = useState<string[]>(['Diego']);
-    const initialCalendarState = Array.from({ length: 7 }, (_, index) => ({
+    const [clients, setClients] = useState<string[]>(['Hospede']);
+    const initialCalendarState = Array.from({ length: 40 }, (_, index) => ({
       date: index,
       client: index < clients.length ? clients[index] : '',
       entry: index < clients.length ? index + 1 : 0,
@@ -117,59 +141,6 @@ export default function Home() {
     };
   return (
     <main className={styles.main}>
-
-
-
-
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-      {calendar.map((entry, index) => (
-        <div
-          key={index}
-          style={{
-            display: 'grid',
-            padding: '0.1rem 0.5rem 0.1rem 0.5rem',
-            border: 'solid 1px',
-            fontSize: '10px',
-            position: 'relative',
-          }}
-          onDrop={() => drop(index)}
-          onDragOver={allowDrop}
-        >
-          <span>Set</span>
-          <span style={{ textAlign: 'center' }}>{entry.date + 1}</span>
-          {entry.client && (
-            <>
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: `calc(${entry.entry * 100}%)`,
-                  transform: 'translate(-50%, -50%)',
-                  width: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '5px',
-                  background: 'lightblue',
-                  borderRadius: '5px',
-                  zIndex: 1,
-                  cursor: 'move',
-                }}
-                draggable
-                onDragStart={(e) => startDrag(e, entry.client, entry.entry)}
-                onDragEnd={handleDragEnd}
-              >
-                {entry.client}
-              </div>
-              
-            </>
-          )}
-        </div>
-      ))}
-    </div>
-
-
-
       <div style={{width:'80rem', paddingBottom:'2rem',paddingTop:'10rem'}}>
         <div>
           <Accordion expanded={expanded === 'panel1'} onChange={handleChange1('panel1')} >
@@ -227,112 +198,143 @@ export default function Home() {
     <div >
       <div style={{display: 'flex', width:'80rem'}}>
         <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}></div>
-        
-        <div ref={div1}  onScroll={onScroll} style={{display: 'flex', overflow: 'auto'}}>   
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>1</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>2</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>3</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>4</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>5</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>6</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>7</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>8</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>9</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>10</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>11</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>12</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>13</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>14</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>15</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>16</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>17</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>18</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>19</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}} ><span>Set</span><span style={{textAlign: 'center'}}>20</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>21</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>22</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>23</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>24</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>25</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>26</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>27</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>28</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>29</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>30</span><span>Seg</span></div>  
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>15</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>16</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>17</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>18</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>19</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}} ><span>Set</span><span style={{textAlign: 'center'}}>20</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>21</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>22</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>23</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>24</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>25</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>26</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>27</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>28</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>29</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>30</span><span>Seg</span></div>         
+        <div ref={div1} onScroll={onScroll} style={{display:'flex',overflow: 'auto'}}>
+      {calendar.map((entry, index) => (
+        <div
+          key={index}
+          style={{
+            display: 'grid',
+            padding: '0.1rem 0.5rem 0.1rem 0.5rem',
+            border: 'solid 1px',
+            fontSize: '10px',
+            position: 'relative',
+            backgroundColor: (diasDoMes[index + 1] === 'Dom' || diasDoMes[index + 1] === 'Sáb') ? 'white' : 'transparent',
+          }}
+          onDrop={() => drop(index)}
+          onDragOver={allowDrop}
+        >
+          <span>Set</span>
+          <span style={{ textAlign: 'center' }}>{entry.date + 1}</span>
+          <span>{diasDoMes[index + 1]}</span>
         </div>
-      </div>
+      ))}
     </div>
-    <div >
-      <div style={{height: '2.5rem' ,display: 'flex', flexDirection: 'column', justifyContent: 'center', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff'}}>
+    </div>
+    </div>
+    
+    <div style={{width: '80rem' }}>
+      <div  onClick={toggleAccordion} style={{height: '2.5rem' ,display: 'flex', justifyContent: 'flex-start', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff',alignItems:'center'}}>
         Fiore Prime
+        <ArrowDropDownIcon></ArrowDropDownIcon>
       </div>
-      <div style={{display: 'flex', width:'80rem'}}>
-        <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}></div>        
-        <div ref={div2} onScroll={onScroll} style={{display: 'flex', overflow:'hidden'}}>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>1</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>2</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>3</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>4</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>5</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>6</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>7</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>8</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>9</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>10</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>11</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>12</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>13</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>14</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>15</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>16</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>17</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>18</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>19</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}} ><span>Set</span><span style={{textAlign: 'center'}}>20</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>21</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>22</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>23</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>24</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>25</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>26</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>27</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>28</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>29</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>30</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>15</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>16</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>17</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>18</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>19</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}} ><span>Set</span><span style={{textAlign: 'center'}}>20</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>21</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>22</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>23</span><span>Seg</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>24</span><span>Ter</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>25</span><span>Qua</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>26</span><span>Qui</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>27</span><span>Sex</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>28</span><span>Sáb</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>29</span><span>Dom</span></div>
-            <div style={{display:'grid', padding: "0.1rem 0.5rem 0.1rem 0.5rem", border: 'solid 1px', fontSize: '10px'}}><span>Set</span><span style={{textAlign: 'center'}}>30</span><span>Seg</span></div>           
+      {accordionOpen && ( 
+        <div
+          id="dropQuartos"
+          style={{ display: 'flex'}}
+        >
+        <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px',alignItems:'center',display: 'flex'}}>Quarto 1</div>        
+        <div ref={div2} onScroll={onScroll} style={{display:'flex',overflow: 'hidden'}}>
+      {calendar.map((entry, index) => (
+        <div
+          key={index}
+          style={{
+            display: 'grid',
+            padding: '0.1rem 0.5rem 0.1rem 0.5rem',
+            border: 'solid 1px',
+            fontSize: '10px',
+            position: 'relative',
+            backgroundColor: (diasDoMes[index + 1] === 'Dom' || diasDoMes[index + 1] === 'Sáb') ? 'white' : 'transparent',
+          }}
+          onDrop={() => drop(index)}
+          onDragOver={allowDrop}
+        >
+          <span style={{clipPath: 'polygon(0 0, 0 0, 0 0)'}}>Set</span>
+          <span style={{textAlign: 'center',clipPath: 'polygon(0 0, 0 0, 0 0)' }}>{entry.date + 1}</span>
+          <span style={{clipPath: 'polygon(0 0, 0 0, 0 0)'}}>{diasDoMes[index + 1]}</span>
+          {entry.client && (
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `calc(${entry.entry * 100}%)`,
+                  transform: `translate(-50%, -50%) skewX(-20deg)`, // Apply skew transformation
+                  width: '50px',
+                  height: '30px', // Adjust the height to your preference
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '5px',
+                  background: 'lightblue',
+                  borderRadius: '5px',
+                  zIndex: 1,
+                  cursor: 'move',
+                }}
+                draggable
+                onDragStart={(e) => startDrag(e, entry.client, entry.entry)}
+                onDragEnd={handleDragEnd}
+              >
+                {entry.client}
+              </div>
+              
+            </>
+          )}
         </div>
-      </div>
+      ))}
+    </div>
+        </div>
+      )}
+      {/* <div   style={{display: 'flex', width:'80rem'}} >
+        <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}></div>        
+        <div ref={div2} onScroll={onScroll} style={{display:'flex',overflow: 'hidden'}}>
+      {calendar.map((entry, index) => (
+        <div
+          key={index}
+          style={{
+            display: 'grid',
+            padding: '0.1rem 0.5rem 0.1rem 0.5rem',
+            border: 'solid 1px',
+            fontSize: '10px',
+            position: 'relative',
+          }}
+          onDrop={() => drop(index)}
+          onDragOver={allowDrop}
+        >
+          <span>Set</span>
+          <span style={{ textAlign: 'center' }}>{entry.date + 1}</span>
+          <span>{diasDoMes[index + 1]}</span>
+          {entry.client && (
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `calc(${entry.entry * 100}%)`,
+                  transform: `translate(-50%, -50%) skewX(-20deg)`, // Apply skew transformation
+                  width: '50px',
+                  height: '30px', // Adjust the height to your preference
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '5px',
+                  background: 'lightblue',
+                  borderRadius: '5px',
+                  zIndex: 1,
+                  cursor: 'move',
+                }}
+                draggable
+                onDragStart={(e) => startDrag(e, entry.client, entry.entry)}
+                onDragEnd={handleDragEnd}
+              >
+                {entry.client}
+              </div>
+              
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+      </div> */}
     </div>
   </main>
   )
