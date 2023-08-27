@@ -13,9 +13,17 @@ import Box from '@mui/material/Box';
 import React, { useRef, useState, useEffect } from "react";
 import { useDrop } from "react-dnd";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+// import { Calendar } from 'primereact/calendar';
+import DatePicker from "react-multi-date-picker"
+import Calendar from 'react-calendar';
+import gregorian_pt from "../app/gregorian_pt"
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+
+type ValuePiece = Date | null;
+
+type Value = ValuePiece | [ValuePiece, ValuePiece];
 export default function Home() {
   const [expanded, setExpanded] = useState<string | false>(false);
   const [expanded2, setExpanded2] = useState<string | false>(false);
@@ -139,6 +147,16 @@ for (let dia = 1; dia <= 40; dia++) {
       setDraggedClient('');
       setSelectedEntry(null);
     };
+
+    const handleDateChange = (newValue: any) => {
+      debugger
+      console.log(newValue)
+      setValue(newValue) // Atualiza o estado com a nova data
+    }
+
+
+    const [value, setValue] = useState<any>();
+
   return (
     <main className={styles.main}>
       <div style={{width:'80rem', paddingBottom:'2rem',paddingTop:'10rem'}}>
@@ -182,8 +200,15 @@ for (let dia = 1; dia <= 40; dia++) {
                   />
                 </Box>
                 <Box>
-                <Typography> Período</Typography>
-              
+                <Typography> Período</Typography>                
+                <DatePicker 
+                  value={value} 
+                  range
+                  rangeHover
+                  onChange={handleDateChange}
+                  locale={gregorian_pt}
+                  numberOfMonths={2}
+                />   
                 </Box>
                 <Box>
                 <Button variant="contained">Filtrar</Button>
