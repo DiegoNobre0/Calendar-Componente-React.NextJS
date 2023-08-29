@@ -9,7 +9,7 @@
   width: 80rem;
 }
 
-.div-calendar{
+/* .div-calendar{
   display: flex;
   overflow: auto;
   @media (max-width:'1280px') {
@@ -23,7 +23,7 @@
   @media (max-width:'1280px') {
     overflow: none;
   }
-}
+} */
 
 .card {
   background: var(--surface-card);
@@ -34,8 +34,8 @@
 
 .resizeable {
   position: absolute;
-  border: 2px solid #533535;
-  width: 25px;
+  border: 1px solid #533535;
+  width: 60px;
   height: 25px;
   border-radius: 3px;
   display: flex;
@@ -66,6 +66,47 @@
   position: absolute;
   background: black;
 }
+
+/* Calendar.module.css */
+.calendar {
+  position: relative;
+}
+
+.daysContainer {
+  display: flex;
+  
+}
+
+.day {
+  width: 60px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  flex-direction: column;
+  overflow: auto;
+  font-size: 12px;
+}
+
+.guest {
+  position: absolute;
+  top: 12px;
+  height:25px;
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #0056b3;
+}
+
+.guest:hover{
+
+  background-color: #007bff;
+}
+
+
 
 
 
