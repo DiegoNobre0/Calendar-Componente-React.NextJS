@@ -70,6 +70,7 @@ const mesesAbreviados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago',
 const diasAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const intervalo = Math.floor((dataFim - dataInicio) / (1000 * 60 * 60 * 24));
+
 const datasIntervalo : any = [];
   
 for (let i = 1; i <= intervalo; i++) {
@@ -232,9 +233,6 @@ const handleDayDrop = (event: any, day: any) => {
     checkIn: newCheckIn,
     checkOut: newCheckOut,
   });  
-
-  convertCheckIn(datasIntervalo[newCheckIn])
-  convertCheckOut(datasIntervalo[newCheckOut])
 
   setDroppedCheckIn(datasIntervalo[newCheckIn]);
   setDroppedCheckOut(datasIntervalo[newCheckOut]);
