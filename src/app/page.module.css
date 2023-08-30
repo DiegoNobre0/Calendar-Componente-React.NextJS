@@ -93,17 +93,30 @@
   position: absolute;
   top: 12px;
   height:25px;
-  background-color: #007bff;
+  background-color: #94bce7;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #0056b3;
+  transform: skewX(-35deg);
 }
 
-.guest:hover{
-
+/* .guest:hover{
   background-color: #007bff;
+} */
+
+
+.preview {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2); 
+  pointer-events: none; 
+}
+
+.clipPath{
+  clip-path: polygon(0 0, 0 0, 0 0);
 }
 
 

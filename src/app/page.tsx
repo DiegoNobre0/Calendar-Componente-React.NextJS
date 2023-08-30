@@ -15,15 +15,14 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 export default function Home() {
 
-const [accordionOpen, setAccordionOpen] = useState(true);
-const dataInicio: any = new Date('2023-02-01');
-const dataFim: any = new Date('2023-02-25');
+const dataInicio: any = new Date('2023-07-26');
+const dataFim: any = new Date('2023-08-30');
 
 const mesesAbreviados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 const diasAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const intervalo = Math.floor((dataFim - dataInicio) / (1000 * 60 * 60 * 24));
-const datasIntervalo = [];
+const datasIntervalo : any = [];
   
 for (let i = 1; i <= intervalo; i++) {
   const data = new Date(dataInicio);
@@ -33,12 +32,16 @@ for (let i = 1; i <= intervalo; i++) {
 
 const dayWidth = 60;
 
-const checkInDate = new Date('2023-02-04');
-const checkOutDate = new Date('2023-02-09');
+const checkInDate = new Date('2023-07-30');
+const checkOutDate = new Date('2023-08-03');
 
-const checkInIndex = datasIntervalo.findIndex(date => date.getTime() === checkInDate.getTime());
-const checkOutIndex = datasIntervalo.findIndex(date => date.getTime() === checkOutDate.getTime());
+const checkInIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime());
+const checkOutIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime());
 
+const [accordionOpen, setAccordionOpen] = useState(true);
+const [dragging, setDragging] = useState(false);
+const [dragStartX, setDragStartX] = useState(0);
+const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
 const [guestData, setGuestData] = useState({
   checkIn: checkInIndex,
   checkOut: checkOutIndex,
@@ -48,12 +51,39 @@ const div1: any = useRef(null);
 const div2: any = useRef(null);
 
 const onScroll = () => {   
+  debugger
   div2.current.scrollLeft = div1.current.scrollLeft;
 }
 
+const handleMouseDownDiv = (event: any) => {
+  setDragging(true);
+  setDragStartX(event.clientX);
+  setDragStartScrollLeft(div1.current.scrollLeft);
+};
+
+const handleMouseMove = (event: any) => {
+  if (dragging) {
+    const offsetX = event.clientX - dragStartX;
+    div1.current.scrollLeft = dragStartScrollLeft - offsetX;
+  }
+};
+
+const handleMouseUp = () => {
+  setDragging(false);
+};
+
+const handleMouseLeave = () => {
+  setDragging(false);
+};
+
+const [mouseCheckIn, setMouseCheckIn] = useState<any>(checkInDate);
+const [mouseCheckOut, setMouseCheckOut] = useState<any>(checkOutDate);
 
 const handleMouseDown = (event: any, isCheckIn: any) => {
+
 event.preventDefault();
+
+console.log(guestData.checkIn, guestData.checkOut);
 
 const startX = event.clientX;
 const startLeft = (isCheckIn ? guestData.checkIn : guestData.checkOut) * dayWidth;
@@ -64,18 +94,31 @@ const handleMouseMove = (event: any) => {
 
   const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth) + 1));
 
+  let checkInDate: any;
+  let checkOutDate: any;
+
   if (isCheckIn) {
+    checkInDate = newDay;
+    checkOutDate = Math.max(guestData.checkOut, newDay)
+
     setGuestData({
     checkIn: newDay,
     checkOut: Math.max(guestData.checkOut, newDay),
   });
   } else {
+    checkInDate = Math.min(guestData.checkIn, newDay)
+    checkOutDate = newDay
     setGuestData({
     checkIn: Math.min(guestData.checkIn, newDay),
     checkOut: newDay,
   });
   }
-    console.log(guestData.checkIn, guestData.checkOut)
+
+  setMouseCheckIn(datasIntervalo[checkInDate]);
+  setMouseCheckOut(datasIntervalo[checkOutDate]);
+
+  console.log(checkInDate, checkOutDate)
+  console.log(datasIntervalo);
 };
 
 const handleMouseUp = () => {
@@ -89,8 +132,7 @@ const handleMouseUp = () => {
 
 const handleGuestMouseDown = (event: any) => {
   event.preventDefault();
-  console.log(guestData.checkIn, guestData.checkOut)
-
+  
   const startX = event.clientX;
   const startLeft = (guestData.checkIn - 1) * dayWidth;
 
@@ -104,10 +146,8 @@ const handleGuestMouseDown = (event: any) => {
   setGuestData({
     checkIn: newCheckIn,
     checkOut: newCheckOut,
-  });
-
-  console.log(guestData.checkIn, guestData.checkOut)
-  };
+  }); 
+};
 
 const handleMouseUp = () => {
   window.removeEventListener('mousemove', handleMouseMove);
@@ -126,18 +166,26 @@ const handleGuestDragEnd = () => {
   // Restaurar qualquer estado necessário após o arrastar do hóspede
 };
 
+const [droppedCheckIn, setDroppedCheckIn] = useState<any>(checkInDate);
+const [droppedCheckOut, setDroppedCheckOut] = useState<any>(checkOutDate);
+
 const handleDayDrop = (event: any, day: any) => {
+  debugger
   event.preventDefault();
 
   const newCheckIn = day;
   const newCheckOut = newCheckIn + (guestData.checkOut - guestData.checkIn);
+  
+  datasIntervalo[newCheckIn]
+  datasIntervalo[newCheckOut]
 
   setGuestData({
     checkIn: newCheckIn,
     checkOut: newCheckOut,
-  });
+  });  
 
-  console.log(newCheckIn, newCheckOut)
+  setDroppedCheckIn(datasIntervalo[newCheckIn]);
+  setDroppedCheckOut(datasIntervalo[newCheckOut]);
 };
 
 const toggleAccordion = () => {
@@ -148,20 +196,24 @@ return (
 <main className={styles.main}>
     <div style={{display:'flex'}}>   
     <div >
-      <div style={{display: 'flex', width:'80rem', overflow: 'auto'}}>
+      <div style={{display: 'flex', width:'80rem', overflow: 'auto', cursor: 'pointer'}} ref={div1}
+        onScroll={onScroll}
+        onMouseDown={handleMouseDownDiv}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}>
         <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}>TESTE</div>
         <div className={styles.calendar}>
-        <div className={styles.daysContainer} ref={div1} onScroll={onScroll}>
-          {datasIntervalo.map((date, index) => (
+        <div className={styles.daysContainer} >
+          {datasIntervalo.map((date: any, index: any) => (
             <div
               key={index}
-              className={`${styles.day} ${styles.draggingOver}`}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => handleDayDrop(event, index)}
+              className={`${styles.day} ${styles.draggingOver}`} 
+              style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent'}}          
             >
-              <span>{mesesAbreviados[date.getMonth()]}</span>
-              <span style={{ textAlign: 'center' }}>{date.getDate()}</span>
-              <span>{diasAbreviados[date.getDay()]}</span>
+              <span style={{ userSelect: 'none' }}>{mesesAbreviados[date.getMonth()]}</span>
+              <span style={{ textAlign: 'center', userSelect: 'none'  }}>{date.getDate()}</span>
+              <span style={{ userSelect: 'none' }}>{diasAbreviados[date.getDay()]}</span>
             </div>
           ))}     
         </div>
@@ -175,20 +227,21 @@ return (
         <ArrowDropDownIcon></ArrowDropDownIcon>
       </div>
       {accordionOpen && (
-        <div style={{display:'flex',overflow: 'auto'}}>
+        <div style={{display:'flex',overflow: 'hidden'}} ref={div2} onScroll={onScroll}>
             <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}>TESTE</div>
             <div className={styles.calendar} >
-            <div className={styles.daysContainer} ref={div2} onScroll={onScroll}>
-              {datasIntervalo.map((date, index) => (
+            <div className={styles.daysContainer} >
+              {datasIntervalo.map((date: any, index: any) => (
                 <div
                   key={index}
                   className={`${styles.day} ${styles.draggingOver}`}
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => handleDayDrop(event, index)}
+                  style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent'}}
                 >
-                  <span>{mesesAbreviados[date.getMonth()]}</span>
-                  <span style={{ textAlign: 'center' }}>{date.getDate()}</span>
-                  <span>{diasAbreviados[date.getDay()]}</span>
+                  <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
+                  <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
+                  <span className={styles.clipPath}>{diasAbreviados[date.getDay()]}</span>
                 </div>
               ))}
               <div
@@ -199,6 +252,7 @@ return (
                   cursor: 'move',
                   display: 'flex',
                   position: 'absolute',
+                  justifyContent: 'space-between'
                 }}
                 draggable
                 onDragStart={handleGuestDragStart}
@@ -208,23 +262,25 @@ return (
                   className={styles.checkInOut}
                   style={{
                     left: `0`,
-                    width: `100%`,
                     cursor: 'col-resize',
+                    background: 'black',
+                    height: '100%',
+                    width: '3px'
                   }}
                   onMouseDown={(e) => handleMouseDown(e, true)}
-                >
-                  in
+                >                  
                 </div>
                 <div
                   className={styles.checkInOut}
                   style={{
-                    left: `0`,
-                    width: `14%`,
+                    left: `0`,                   
                     cursor: 'col-resize',
+                    background: 'black',
+                    height: '100%',
+                    width: '3px'
                   }}
                   onMouseDown={(e) => handleMouseDown(e, false)}
-                >
-                  out
+                >                  
                 </div>
               </div>
             </div>
@@ -232,6 +288,19 @@ return (
         </div>
       )}      
     </div> 
+
+
+    <div>
+  <h3>DROP</h3>
+  <span>CHECK-IN : {droppedCheckIn ? droppedCheckIn.toDateString() : 'N/A'}</span><br/>
+  <span>CHECK-OUT : {droppedCheckOut ? droppedCheckOut.toDateString() : 'N/A'}</span>
+</div>
+    <div>
+      <h3>MouseMove</h3>
+      <span>CHECK-IN : {mouseCheckIn ? mouseCheckIn.toDateString() : 'N/A'}</span><br/>
+      <span>CHECK-OUT : {mouseCheckOut ? mouseCheckOut.toDateString() : 'N/A'}</span>
+    </div>              
+
   </main>
   )
 }
