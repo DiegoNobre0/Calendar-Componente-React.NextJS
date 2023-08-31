@@ -10,57 +10,32 @@ import TextField, { OutlinedTextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { log } from 'console';
 
 export default function Home() {
 
-  // const reservations = 
-  //   [
-  //     {
-  //         "IdReserva": 2,
-  //         "Cliente": "Hospede 1",
-  //         "IdImovel": 1,
-  //         "NumeroImovel": "TESTE1",
-  //         "NomeHotel": "Fiore Prime",
-  //         "IdHotel": 1,
-  //         "CheckIn": "1/08/2023",
-  //         "CheckOut": "3/08/2023"
-  //     },
-  //     {
-  //         "IdReserva": 2,
-  //         "Cliente": "Hospede 2",
-  //         "IdImovel": 2,
-  //         "NumeroImovel": "TESTE2",
-  //         "NomeHotel": "Fiore Prime",
-  //         "IdHotel": 1,
-  //         "CheckIn": "5/08/2023",
-  //         "CheckOut": "6/08/2023"
-  //     }
-  // ];
-
-
   const [reservations, setReservations] = useState([
     {
-      "IdReserva": 2,
-      "Cliente": "Hospede 1",
-      "IdImovel": 1,
-      "NumeroImovel": "TESTE1",
-      "NomeHotel": "Fiore Prime",
-      "IdHotel": 1,
-      "CheckIn": "2023-08-01",
-      "CheckOut": "2023-08-03"
+      IdReserva: 2,
+      Cliente: "Hospede 1",
+      IdImovel: 1,
+      NumeroImovel: "TESTE1",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-08-01",
+      CheckOut: "2023-08-03"
     },
-    // {
-    //   "IdReserva": 2,
-    //   "Cliente": "Hospede 2",
-    //   "IdImovel": 2,
-    //   "NumeroImovel": "TESTE2",
-    //   "NomeHotel": "Fiore Prime",
-    //   "IdHotel": 1,
-    //   "CheckIn": "2023-08-05",
-    //   "CheckOut": "2023-08-06"
+    //  {
+    //   IdReserva: 2,
+    //   Cliente: "Hospede 2",
+    //   IdImovel: 2,
+    //   NumeroImovel: "TESTE2",
+    //   NomeHotel: "Fiore Prime",
+    //   IdHotel: 1,
+    //   CheckIn: "2023-08-05",
+    //   CheckOut: "2023-08-06"
     // }
   ]);
 
@@ -82,20 +57,11 @@ export default function Home() {
 
   const dayWidth = 60;
 
-  // const checkInDate = new Date('2023-07-30');
-  // const checkOutDate = new Date('2023-08-03');
-
-  // const checkInIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime());
-  // const checkOutIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime());
-
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
-  // const [guestData, setGuestData] = useState({
-  //   checkIn: checkInIndex,
-  //   checkOut: checkOutIndex,
-  // });
+
 
   const div2 = useRef<HTMLDivElement[]>([]);
   const div1: any = useRef<HTMLDivElement>(null);
@@ -130,9 +96,7 @@ export default function Home() {
   const [mouseCheckIn, setMouseCheckIn] = useState<any>(reservations[0].CheckIn);
   const [mouseCheckOut, setMouseCheckOut] = useState<any>(reservations[0].CheckOut);
 
-  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: number) => {
-    debugger
-    // Esta com o bug visual de ao tentar editar uma reserva e em seguida alterar a outra pois o dado que e utilizado e o o guest data, deveria ser o reservation.CheckIn orem o mesmo esta como string, e o esperado pelo codigo é number
+  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: number) => {   
     event.preventDefault();    
     const reservation = reservations[reservationIndex];  
       
@@ -148,37 +112,24 @@ export default function Home() {
     const handleMouseMove = (event: any) => {
       
       const offsetX = event.clientX - startX;
-      const newLeft =  offsetX - startLeft ;
+      const newLeft =  offsetX + startLeft ;
 
       const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth) + 1));
       
       let checkInDate: number;
       let checkOutDate: number;
-
+  
       if (isCheckIn) {
         checkInDate = newDay;
-        checkOutDate = Math.max(checkOutIndex,newDay )
-
-        // setGuestData({
-        //   checkIn: newDay,
-        //   checkOut: Math.max(guestData.checkOut, newDay),
-        // });
-
+        checkOutDate = Math.max(checkOutIndex,newDay )   
+        
       } else {
         checkInDate = Math.min(checkInIndex,newDay)
-        checkOutDate = newDay
-        // setGuestData({
-        //   checkIn: Math.min(guestData.checkIn, newDay),
-        //   checkOut: newDay,
-        // });
+        checkOutDate = newDay      
       }
-      debugger
-      // setMouseCheckIn(datasIntervalo[checkInDate]);
-      // setMouseCheckOut(datasIntervalo[checkOutDate]);
-      debugger
 
+      console.log(checkInDate,checkOutDate)
       setReservations(reservation => reservation.map((_reservaton, index) => {
-        debugger
         if (index === reservationIndex) {
           return {
             ..._reservaton,
@@ -186,13 +137,12 @@ export default function Home() {
             CheckOut: datasIntervalo[checkOutDate]
           }
         }
-        debugger
         return _reservaton
       }))
 
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = () => {     
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
@@ -200,35 +150,6 @@ export default function Home() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
   };
-
-  // const handleGuestMouseDown = (event: any) => {
-  //   event.preventDefault();
-
-  //   const startX = event.clientX;
-  //   const startLeft = (guestData.checkIn - 1) * dayWidth;
-
-  //   const handleMouseMove = (event: any) => {
-  //     const offsetX = event.clientX - startX;
-  //     const newLeft = startLeft + offsetX;
-
-  //     const newCheckIn = Math.max(1, Math.min(datasIntervalo.length - (guestData.checkOut - guestData.checkIn), Math.floor(newLeft / dayWidth) + 1));
-  //     const newCheckOut = newCheckIn + (guestData.checkOut - guestData.checkIn);
-
-  //     setGuestData({
-  //       checkIn: newCheckIn,
-  //       checkOut: newCheckOut,
-  //     });
-  //   };
-
-  //   const handleMouseUp = () => {
-  //     window.removeEventListener('mousemove', handleMouseMove);
-  //     window.removeEventListener('mouseup', handleMouseUp);
-  //   };
-
-  //   window.addEventListener('mousemove', handleMouseMove);
-  //   window.addEventListener('mouseup', handleMouseUp);
-  // };
-
 
   const handleGuestDragStart = (event: any) => {
     event.dataTransfer.setData('text/plain', '');
@@ -238,35 +159,27 @@ export default function Home() {
     // Restaurar qualquer estado necessário após o arrastar do hóspede
   };
 
-  const [droppedCheckIn, setDroppedCheckIn] = useState<any>(reservations[0].CheckIn);
-  const [droppedCheckOut, setDroppedCheckOut] = useState<any>(reservations[0].CheckOut);
 
   const handleDayDrop = (event: any, day: any, reservationIndex: number) => {
     debugger
     event.preventDefault();
 
     const reservation = reservations[reservationIndex];
-
+    debugger
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
         
     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
     const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
 
-
+    debugger
     const newCheckIn = day;
-    const newCheckOut = newCheckIn + (checkInIndex - checkOutIndex);
+    const newCheckOut = newCheckIn + (checkInIndex - checkOutIndex - 2);
 
     datasIntervalo[newCheckIn]
     datasIntervalo[newCheckOut]
-
-    // setGuestData({
-    //   checkIn: newCheckIn,
-    //   checkOut: newCheckOut,
-    // });
-
-    setDroppedCheckIn(datasIntervalo[newCheckIn]);
-    setDroppedCheckOut(datasIntervalo[newCheckOut]);
+   
+  
     // Ao fazer o drop esta aumentando o tamanho da width
     setReservations(reservation => reservation.map((_reservaton, index) => {
       if (index === reservationIndex) {
@@ -276,6 +189,7 @@ export default function Home() {
           CheckOut: datasIntervalo[newCheckOut]
         }
       }
+      
       return _reservaton
     }))
   };
@@ -284,20 +198,25 @@ export default function Home() {
     setAccordionOpen(!accordionOpen);
   };
 
-
-  const convertCheckIn = (dateIn: any) => {
-    debugger
+  useEffect(() => {
+  },[])
+  
+  const convertCheckIn = (dateIn: any) => {  
     let CheckIn = new Date(dateIn);
     let convertCheckIn = datasIntervalo.findIndex((date: any) => date.getTime() === CheckIn.getTime());
-
-    return (convertCheckIn + 1);
+    let teste = (convertCheckIn);
+    console.log(teste)
+    return (convertCheckIn);
   }
 
 
   const convertCheckOut = (dateOut: any) => {
-    const CheckOut = new Date(dateOut);
-    let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime());
-    return (convertCheckOut + 1);
+    let CheckOut = new Date(dateOut);
+    let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime()); 
+    let teste = ( convertCheckOut);
+    console.log(teste)
+    console.log(datasIntervalo)
+    return (convertCheckOut);
   }
 
   return (
@@ -365,7 +284,7 @@ export default function Home() {
                         className={`${styles.guest} ${styles.draggingGuest}`}
                         style={{
                           left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
-                          width: `${(convertCheckOut(reservation.CheckOut) - convertCheckIn(reservation.CheckIn) + 1) * dayWidth}px`,
+                          width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * dayWidth}px`,
                           cursor: 'move',
                           display: 'flex',
                           position: 'absolute',
@@ -408,21 +327,7 @@ export default function Home() {
             ))}
           </div>
         )}
-      </div>
-
-
-
-      {/* <div>
-        <h3>DROP</h3>
-        <span>CHECK-IN : {droppedCheckIn ? droppedCheckIn.toDateString() : 'N/A'}</span><br />
-        <span>CHECK-OUT : {droppedCheckOut ? droppedCheckOut.toDateString() : 'N/A'}</span>
-      </div>
-      <div>
-        <h3>MouseMove</h3>
-        <span>CHECK-IN : {mouseCheckIn ? mouseCheckIn.toDateString() : 'N/A'}</span><br />
-        <span>CHECK-OUT : {mouseCheckOut ? mouseCheckOut.toDateString() : 'N/A'}</span>
-      </div> */}
-
+      </div>      
     </main>
   )
 }

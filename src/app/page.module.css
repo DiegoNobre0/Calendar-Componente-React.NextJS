@@ -90,7 +90,7 @@
 }
 
 .guest {
-  position: absolute;
+  /* position: absolute; */
   top: 12px;
   height:25px;
   background-color: #94bce7;
