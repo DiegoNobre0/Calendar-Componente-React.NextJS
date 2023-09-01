@@ -14,30 +14,69 @@ import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { log } from 'console';
 
+interface Reservation {
+  IdReserva: number;
+  Cliente: string;
+  IdImovel: number;
+  NumeroImovel: string;
+  NomeHotel: string;
+  IdHotel: number;
+  CheckIn: string;
+  CheckOut: string;
+}
+
 export default function Home() {
 
   const [reservations, setReservations] = useState([
     {
-      IdReserva: 2,
+      IdReserva: 1,
       Cliente: "Hospede 1",
       IdImovel: 1,
-      NumeroImovel: "TESTE1",
+      NumeroImovel: "QUARTO 1",
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-08-01",
       CheckOut: "2023-08-03"
     },
-    //  {
-    //   IdReserva: 2,
-    //   Cliente: "Hospede 2",
-    //   IdImovel: 2,
-    //   NumeroImovel: "TESTE2",
-    //   NomeHotel: "Fiore Prime",
-    //   IdHotel: 1,
-    //   CheckIn: "2023-08-05",
-    //   CheckOut: "2023-08-06"
-    // }
+
+    {
+      IdReserva: 2,
+      Cliente: "Hospede 2",
+      IdImovel: 1,
+      NumeroImovel: "QUARTO 1",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-07-28",
+      CheckOut: "2023-07-30"
+    },
+ 
+     {
+      IdReserva: 3,
+      Cliente: "Hospede 3",
+      IdImovel: 2,
+      NumeroImovel: "QUARTO 2",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-08-05",
+      CheckOut: "2023-08-06"
+    }
   ]);
+
+  const groupedReservations : any = groupReservationsByImovel(reservations);
+
+  function groupReservationsByImovel(reservations: any[]) {    
+    const groupedReservations: { [key: number]: any[] } = {};
+  
+    reservations.forEach((reservation: any) => {
+      const { IdImovel } = reservation;
+      if (!groupedReservations[IdImovel]) {
+        groupedReservations[IdImovel] = [];
+      }
+      groupedReservations[IdImovel].push(reservation);
+    });
+    console.log(groupedReservations)
+    return groupedReservations;
+  }
 
   const dataInicio: any = new Date('2023-07-26');
   const dataFim: any = new Date('2023-08-30');
@@ -49,10 +88,15 @@ export default function Home() {
 
   const datasIntervalo: any = [];
 
-  for (let i = 1; i <= intervalo; i++) {
-    const data = new Date(dataInicio);
-    data.setDate(dataInicio.getDate() + i);
-    datasIntervalo.push(data);
+  for (let i = 0; i <= intervalo; i++) {
+    if(i == 0){
+      const data = new Date(dataInicio);
+      data.setDate(dataInicio.getDate() + i);
+      datasIntervalo.push(data);
+    }
+      const data = new Date(dataInicio);
+      data.setDate(dataInicio.getDate() + i + 1);
+      datasIntervalo.push(data);
   }
 
   const dayWidth = 60;
@@ -93,19 +137,19 @@ export default function Home() {
     setDragging(false);
   };
 
-  const [mouseCheckIn, setMouseCheckIn] = useState<any>(reservations[0].CheckIn);
-  const [mouseCheckOut, setMouseCheckOut] = useState<any>(reservations[0].CheckOut);
+  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {   
+    event.preventDefault();   
+    
+    const id = parseInt(reservationIndex);
 
-  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: number) => {   
-    event.preventDefault();    
-    const reservation = reservations[reservationIndex];  
-      
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id); 
+
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
-        
-    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
-    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);  
-    
+  
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()));
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()));  
+
     const startX = event.clientX;
     const startLeft = (isCheckIn ? checkInIndex : checkOutIndex) * dayWidth;
     
@@ -114,7 +158,7 @@ export default function Home() {
       const offsetX = event.clientX - startX;
       const newLeft =  offsetX + startLeft ;
 
-      const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth) + 1));
+      const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth)));
       
       let checkInDate: number;
       let checkOutDate: number;
@@ -126,19 +170,18 @@ export default function Home() {
       } else {
         checkInDate = Math.min(checkInIndex,newDay)
         checkOutDate = newDay      
-      }
+      }    
 
-      console.log(checkInDate,checkOutDate)
-      setReservations(reservation => reservation.map((_reservaton, index) => {
-        if (index === reservationIndex) {
-          return {
-            ..._reservaton,
-            CheckIn: datasIntervalo[checkInDate],
-            CheckOut: datasIntervalo[checkOutDate]
-          }
-        }
-        return _reservaton
-      }))
+      setReservations(reservation => {
+        reservation.forEach((_reservation) => {
+          if (_reservation.IdReserva === id && checkInDate !== checkOutDate) {
+            _reservation.CheckIn = datasIntervalo[checkInDate];
+            _reservation.CheckOut = datasIntervalo[checkOutDate];
+          }         
+        });
+      
+        return [...reservation]; 
+      });
 
     };
 
@@ -160,36 +203,34 @@ export default function Home() {
   };
 
 
-  const handleDayDrop = (event: any, day: any, reservationIndex: number) => {
+  const handleDayDrop = (event: any, day: any, reservationIndex: any) => {  
     debugger
     event.preventDefault();
 
-    const reservation = reservations[reservationIndex];
-    debugger
+    const id = parseInt(reservationIndex);
+
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
+
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
         
     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
     const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
 
-    debugger
     const newCheckIn = day;
-    const newCheckOut = newCheckIn + (checkInIndex - checkOutIndex - 2);
+    const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
 
     datasIntervalo[newCheckIn]
-    datasIntervalo[newCheckOut]
-   
-  
-    // Ao fazer o drop esta aumentando o tamanho da width
-    setReservations(reservation => reservation.map((_reservaton, index) => {
-      if (index === reservationIndex) {
+    datasIntervalo[newCheckOut]  
+
+    setReservations(reservation => reservation.map((_reservaton) => {
+      if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
         return {
           ..._reservaton,
           CheckIn: datasIntervalo[newCheckIn],
           CheckOut: datasIntervalo[newCheckOut]
         }
-      }
-      
+      }      
       return _reservaton
     }))
   };
@@ -197,27 +238,35 @@ export default function Home() {
   const toggleAccordion = () => {
     setAccordionOpen(!accordionOpen);
   };
-
-  useEffect(() => {
-  },[])
   
-  const convertCheckIn = (dateIn: any) => {  
+  const convertCheckIn = (dateIn: any) => {      
     let CheckIn = new Date(dateIn);
-    let convertCheckIn = datasIntervalo.findIndex((date: any) => date.getTime() === CheckIn.getTime());
-    let teste = (convertCheckIn);
-    console.log(teste)
-    return (convertCheckIn);
+    let convertCheckIn = datasIntervalo.findIndex((date: any) => date.getTime() === CheckIn.getTime());   
+    return convertCheckIn;
   }
 
 
   const convertCheckOut = (dateOut: any) => {
     let CheckOut = new Date(dateOut);
-    let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime()); 
-    let teste = ( convertCheckOut);
-    console.log(teste)
-    console.log(datasIntervalo)
-    return (convertCheckOut);
+    let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime());  
+    return convertCheckOut;
   }
+
+
+  const teste = (id: any) => {
+    Object.keys(groupedReservations).forEach((idImovel) => {
+      const reservationsForImovel = groupedReservations[idImovel];
+      
+      // Itere sobre as reservas em um determinado quarto.
+      reservationsForImovel.forEach((reservation : any) => {
+        console.log(reservation)
+        const cliente = reservation.Cliente;
+        console.log(`Quarto: ${reservation.NumeroImovel}, Hóspede: ${cliente}`);
+      });
+    });
+
+    return "a";
+  };
 
   return (
     <main className={styles.main}>
@@ -236,7 +285,7 @@ export default function Home() {
                   <div
                     key={index}
                     className={`${styles.day} ${styles.draggingOver}`}
-                    style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent' }}
+                    style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                   >
                     <span style={{ userSelect: 'none' }}>{mesesAbreviados[date.getMonth()]}</span>
                     <span style={{ textAlign: 'center', userSelect: 'none' }}>{date.getDate()}</span>
@@ -254,32 +303,33 @@ export default function Home() {
           <ArrowDropDownIcon></ArrowDropDownIcon>
         </div>
         {accordionOpen && (
+  <div>
+    {Object.keys(groupedReservations).map((idImovel: any, reservationIndex: any, reservation: any) => (
+      <div key={idImovel}>
+        <h2>IdImovel: {idImovel}</h2>
           <div>
-            {reservations.map((reservation: any, reservationIndex: any) => (
-              <div
-                key={reservationIndex}
-                style={{ marginBottom: '20px' }}
-              >
-                <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
-                  div2.current[reservationIndex] = element as any
-                }} onScroll={onScroll}>
-                  <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>{reservation.NumeroImovel}</div>
-                  <div className={styles.calendar} >
-                    <div className={styles.daysContainer} >
-                      {datasIntervalo.map((date: any, index: any) => (
-                        <div
-                          key={index}
-                          className={`${styles.day} ${styles.draggingOver}`}
-                          onDragOver={(event) => event.preventDefault()}
-                          onDrop={(event) => handleDayDrop(event, index, reservationIndex)}
-                          style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent' }}
-                        >
-                          <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
-                          <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
-                          <span className={styles.clipPath}>{diasAbreviados[date.getDay()]}</span>
-                        </div>
-                      ))}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
+                div2.current[reservationIndex] = element as any
+              }} onScroll={onScroll}>
+                <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}></div>
+                <div className={styles.calendar}>
+                  <div className={styles.daysContainer}>
+                    {datasIntervalo.map((date: any, index: any) => (
+                      <div
+                        key={index}
+                        className={`${styles.day} ${styles.draggingOver}`}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDrop={(event) => handleDayDrop(event, index, reservation.IdReserva)}
+                        style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
+                      >
+                        <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
+                        <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
+                        <span className={styles.clipPath}>{diasAbreviados[date.getDay()]}</span>
+                      </div>
+                    ))}
 
+                    {groupedReservations[idImovel].map((reservation: any) => (
                       <div
                         className={`${styles.guest} ${styles.draggingGuest}`}
                         style={{
@@ -291,8 +341,6 @@ export default function Home() {
                           justifyContent: 'space-between'
                         }}
                         draggable
-                      // onDragStart={handleGuestDragStart}
-                      // onDragEnd={handleGuestDragEnd}
                       >
                         <div
                           className={styles.checkInOut}
@@ -303,7 +351,7 @@ export default function Home() {
                             height: '100%',
                             width: '3px'
                           }}
-                          onMouseDown={(e) => handleMouseDown(e, true, reservationIndex)}
+                          onMouseDown={(e) => handleMouseDown(e, true, reservation)}
                         >
                         </div>
                         <span>{reservation.Cliente}</span>
@@ -316,17 +364,21 @@ export default function Home() {
                             height: '100%',
                             width: '3px'
                           }}
-                          onMouseDown={(e) => handleMouseDown(e, false, reservationIndex)}
+                          onMouseDown={(e) => handleMouseDown(e, false, reservation)}
                         >
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          </div>        
+      </div>
+    ))}
+  </div>
+)}
+
       </div>      
     </main>
   )
