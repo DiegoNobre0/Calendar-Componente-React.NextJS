@@ -10,298 +10,376 @@ import TextField, { OutlinedTextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import React, {useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { log } from 'console';
+
+interface Reservation {
+  IdReserva: number;
+  Cliente: string;
+  IdImovel: number;
+  NumeroImovel: string;
+  NomeHotel: string;
+  IdHotel: number;
+  CheckIn: string;
+  CheckOut: string;
+}
 
 export default function Home() {
 
-const dataInicio: any = new Date('2023-07-26');
-const dataFim: any = new Date('2023-08-30');
+  const [reservations, setReservations] = useState([
+    {
+      IdReserva: 1,
+      Cliente: "Hospede 1",
+      IdImovel: 1,
+      NumeroImovel: "QUARTO 1",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-08-01",
+      CheckOut: "2023-08-03"
+    },
 
-const mesesAbreviados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-const diasAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    {
+      IdReserva: 2,
+      Cliente: "Hospede 2",
+      IdImovel: 1,
+      NumeroImovel: "QUARTO 1",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-07-28",
+      CheckOut: "2023-07-30"
+    },
 
-const intervalo = Math.floor((dataFim - dataInicio) / (1000 * 60 * 60 * 24));
-const datasIntervalo : any = [];
-  
-for (let i = 1; i <= intervalo; i++) {
-  const data = new Date(dataInicio);
-  data.setDate(dataInicio.getDate() + i);
-  datasIntervalo.push(data);
-}
+    {
+      IdReserva: 3,
+      Cliente: "Hospede 3",
+      IdImovel: 2,
+      NumeroImovel: "QUARTO 2",
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-08-05",
+      CheckOut: "2023-08-06"
+    }
+  ]);
 
-const dayWidth = 60;
+  const groupedReservations: any = groupReservationsByImovel(reservations);
 
-const checkInDate = new Date('2023-07-30');
-const checkOutDate = new Date('2023-08-03');
 
-const checkInIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime());
-const checkOutIndex = datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime());
+  function groupReservationsByImovel(reservations: any[]) {
+    // debugger
+    const groupedReservations: { [key: number]: any[] } = {};
 
-const [accordionOpen, setAccordionOpen] = useState(true);
-const [dragging, setDragging] = useState(false);
-const [dragStartX, setDragStartX] = useState(0);
-const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
-const [guestData, setGuestData] = useState({
-  checkIn: checkInIndex,
-  checkOut: checkOutIndex,
-});
-  
-const div1: any = useRef(null);
-const div2: any = useRef(null);
-
-const onScroll = () => {   
-  debugger
-  div2.current.scrollLeft = div1.current.scrollLeft;
-}
-
-const handleMouseDownDiv = (event: any) => {
-  setDragging(true);
-  setDragStartX(event.clientX);
-  setDragStartScrollLeft(div1.current.scrollLeft);
-};
-
-const handleMouseMove = (event: any) => {
-  if (dragging) {
-    const offsetX = event.clientX - dragStartX;
-    div1.current.scrollLeft = dragStartScrollLeft - offsetX;
-  }
-};
-
-const handleMouseUp = () => {
-  setDragging(false);
-};
-
-const handleMouseLeave = () => {
-  setDragging(false);
-};
-
-const [mouseCheckIn, setMouseCheckIn] = useState<any>(checkInDate);
-const [mouseCheckOut, setMouseCheckOut] = useState<any>(checkOutDate);
-
-const handleMouseDown = (event: any, isCheckIn: any) => {
-
-event.preventDefault();
-
-console.log(guestData.checkIn, guestData.checkOut);
-
-const startX = event.clientX;
-const startLeft = (isCheckIn ? guestData.checkIn : guestData.checkOut) * dayWidth;
-
-const handleMouseMove = (event: any) => {
-  const offsetX = event.clientX - startX;
-  const newLeft = startLeft + offsetX;
-
-  const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth) + 1));
-
-  let checkInDate: any;
-  let checkOutDate: any;
-
-  if (isCheckIn) {
-    checkInDate = newDay;
-    checkOutDate = Math.max(guestData.checkOut, newDay)
-
-    setGuestData({
-    checkIn: newDay,
-    checkOut: Math.max(guestData.checkOut, newDay),
-  });
-  } else {
-    checkInDate = Math.min(guestData.checkIn, newDay)
-    checkOutDate = newDay
-    setGuestData({
-    checkIn: Math.min(guestData.checkIn, newDay),
-    checkOut: newDay,
-  });
+    reservations.forEach((reservation: any) => {
+      const { IdImovel } = reservation;
+      if (!groupedReservations[IdImovel]) {
+        groupedReservations[IdImovel] = [];
+      }
+      groupedReservations[IdImovel].push(reservation);
+    });
+    console.log(groupedReservations)
+    return groupedReservations;
   }
 
-  setMouseCheckIn(datasIntervalo[checkInDate]);
-  setMouseCheckOut(datasIntervalo[checkOutDate]);
+  const groupedReservationsList = Object.values(groupedReservations);
 
-  console.log(checkInDate, checkOutDate)
-  console.log(datasIntervalo);
-};
+  console.log(groupedReservationsList)
 
-const handleMouseUp = () => {
-  window.removeEventListener('mousemove', handleMouseMove);
-  window.removeEventListener('mouseup', handleMouseUp);
-};
+  const dataInicio: any = new Date('2023-07-26');
+  const dataFim: any = new Date('2023-08-30');
 
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('mouseup', handleMouseUp);
-};
+  const mesesAbreviados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const diasAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-const handleGuestMouseDown = (event: any) => {
-  event.preventDefault();
-  
-  const startX = event.clientX;
-  const startLeft = (guestData.checkIn - 1) * dayWidth;
+  const intervalo = Math.floor((dataFim - dataInicio) / (1000 * 60 * 60 * 24));
+
+  const datasIntervalo: any = [];
+
+  for (let i = 0; i <= intervalo; i++) {
+    if (i == 0) {
+      const data = new Date(dataInicio);
+      data.setDate(dataInicio.getDate() + i);
+      datasIntervalo.push(data);
+    }
+    const data = new Date(dataInicio);
+    data.setDate(dataInicio.getDate() + i + 1);
+    datasIntervalo.push(data);
+  }
+
+  const dayWidth = 60;
+
+  const [accordionOpen, setAccordionOpen] = useState(true);
+  const [dragging, setDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
+
+
+  const div2 = useRef<HTMLDivElement[]>([]);
+  const div1: any = useRef<HTMLDivElement>(null);
+
+  const onScroll = () => {
+    div2.current.forEach(current => {
+      current.scrollLeft = div1.current?.scrollLeft || 0
+    })
+  }
+
+  const handleMouseDownDiv = (event: any) => {
+    setDragging(true);
+    setDragStartX(event.clientX);
+    setDragStartScrollLeft(div1.current.scrollLeft);
+  };
 
   const handleMouseMove = (event: any) => {
-  const offsetX = event.clientX - startX;
-  const newLeft = startLeft + offsetX;
+    if (dragging) {
+      const offsetX = event.clientX - dragStartX;
+      div1.current.scrollLeft = dragStartScrollLeft - offsetX;
+    }
+  };
 
-  const newCheckIn = Math.max(1, Math.min(datasIntervalo.length - (guestData.checkOut - guestData.checkIn), Math.floor(newLeft / dayWidth) + 1));
-  const newCheckOut = newCheckIn + (guestData.checkOut - guestData.checkIn);
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
 
-  setGuestData({
-    checkIn: newCheckIn,
-    checkOut: newCheckOut,
-  }); 
-};
+  const handleMouseLeave = () => {
+    setDragging(false);
+  };
 
-const handleMouseUp = () => {
-  window.removeEventListener('mousemove', handleMouseMove);
-  window.removeEventListener('mouseup', handleMouseUp);
-};
+  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {
+    event.preventDefault();
 
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('mouseup', handleMouseUp);
-};
+    const id = parseInt(reservationIndex);
 
-const handleGuestDragStart = (event: any) => {
-  event.dataTransfer.setData('text/plain', '');
-};
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
 
-const handleGuestDragEnd = () => {
-  // Restaurar qualquer estado necessário após o arrastar do hóspede
-};
+    const checkInDate = new Date(reservation.CheckIn);
+    const checkOutDate = new Date(reservation.CheckOut);
 
-const [droppedCheckIn, setDroppedCheckIn] = useState<any>(checkInDate);
-const [droppedCheckOut, setDroppedCheckOut] = useState<any>(checkOutDate);
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()));
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()));
 
-const handleDayDrop = (event: any, day: any) => {
-  debugger
-  event.preventDefault();
+    const startX = event.clientX;
+    const startLeft = (isCheckIn ? checkInIndex : checkOutIndex) * dayWidth;
 
-  const newCheckIn = day;
-  const newCheckOut = newCheckIn + (guestData.checkOut - guestData.checkIn);
-  
-  datasIntervalo[newCheckIn]
-  datasIntervalo[newCheckOut]
+    const handleMouseMove = (event: any) => {
 
-  setGuestData({
-    checkIn: newCheckIn,
-    checkOut: newCheckOut,
-  });  
+      const offsetX = event.clientX - startX;
+      const newLeft = offsetX + startLeft;
 
-  setDroppedCheckIn(datasIntervalo[newCheckIn]);
-  setDroppedCheckOut(datasIntervalo[newCheckOut]);
-};
+      const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth)));
 
-const toggleAccordion = () => {
-   setAccordionOpen(!accordionOpen); 
-};
+      let checkInDate: number;
+      let checkOutDate: number;
 
-return (
-<main className={styles.main}>
-    <div style={{display:'flex'}}>   
-    <div >
-      <div style={{display: 'flex', width:'80rem', overflow: 'auto', cursor: 'pointer'}} ref={div1}
-        onScroll={onScroll}
-        onMouseDown={handleMouseDownDiv}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}>
-        <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}>TESTE</div>
-        <div className={styles.calendar}>
-        <div className={styles.daysContainer} >
-          {datasIntervalo.map((date: any, index: any) => (
-            <div
-              key={index}
-              className={`${styles.day} ${styles.draggingOver}`} 
-              style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent'}}          
-            >
-              <span style={{ userSelect: 'none' }}>{mesesAbreviados[date.getMonth()]}</span>
-              <span style={{ textAlign: 'center', userSelect: 'none'  }}>{date.getDate()}</span>
-              <span style={{ userSelect: 'none' }}>{diasAbreviados[date.getDay()]}</span>
-            </div>
-          ))}     
-        </div>
-      </div>   
-    </div>
-    </div>
-    </div>
-    <div style={{width: '80rem' }}>
-      <div  onClick={toggleAccordion} style={{height: '2.5rem' ,display: 'flex', justifyContent: 'flex-start', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff',alignItems:'center'}}>
-        Fiore Prime
-        <ArrowDropDownIcon></ArrowDropDownIcon>
-      </div>
-      {accordionOpen && (
-        <div style={{display:'flex',overflow: 'hidden'}} ref={div2} onScroll={onScroll}>
-            <div style={{width:'10rem', backgroundColor:'#fff', borderRight: 'solid 3px'}}>TESTE</div>
-            <div className={styles.calendar} >
-            <div className={styles.daysContainer} >
-              {datasIntervalo.map((date: any, index: any) => (
-                <div
-                  key={index}
-                  className={`${styles.day} ${styles.draggingOver}`}
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={(event) => handleDayDrop(event, index)}
-                  style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'white' : 'transparent'}}
-                >
-                  <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
-                  <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
-                  <span className={styles.clipPath}>{diasAbreviados[date.getDay()]}</span>
-                </div>
-              ))}
-              <div
-                className={`${styles.guest} ${styles.draggingGuest}`}
-                style={{
-                  left: `${guestData.checkIn * dayWidth}px`,
-                  width: `${(guestData.checkOut - guestData.checkIn + 1) * dayWidth}px`,
-                  cursor: 'move',
-                  display: 'flex',
-                  position: 'absolute',
-                  justifyContent: 'space-between'
-                }}
-                draggable
-                onDragStart={handleGuestDragStart}
-                onDragEnd={handleGuestDragEnd}
-              >
-                <div
-                  className={styles.checkInOut}
-                  style={{
-                    left: `0`,
-                    cursor: 'col-resize',
-                    background: 'black',
-                    height: '100%',
-                    width: '3px'
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, true)}
-                >                  
-                </div>
-                <div
-                  className={styles.checkInOut}
-                  style={{
-                    left: `0`,                   
-                    cursor: 'col-resize',
-                    background: 'black',
-                    height: '100%',
-                    width: '3px'
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, false)}
-                >                  
-                </div>
+      if (isCheckIn) {
+        checkInDate = newDay;
+        checkOutDate = Math.max(checkOutIndex, newDay)
+
+      } else {
+        checkInDate = Math.min(checkInIndex, newDay)
+        checkOutDate = newDay
+      }
+
+      setReservations(reservation => {
+        reservation.forEach((_reservation) => {
+          if (_reservation.IdReserva === id && checkInDate !== checkOutDate) {
+            _reservation.CheckIn = datasIntervalo[checkInDate];
+            _reservation.CheckOut = datasIntervalo[checkOutDate];
+          }
+        });
+
+        return [...reservation];
+      });
+
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleGuestDragStart = (event: any) => {
+    event.dataTransfer.setData('text/plain', '');
+  };
+
+  const handleGuestDragEnd = () => {
+    // Restaurar qualquer estado necessário após o arrastar do hóspede
+  };
+
+
+  const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
+    debugger
+    event.preventDefault();
+
+    const id = parseInt(reservationIndex);
+
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
+
+    const checkInDate = new Date(reservation.CheckIn);
+    const checkOutDate = new Date(reservation.CheckOut);
+
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
+
+    const newCheckIn = day;
+    const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
+
+    datasIntervalo[newCheckIn]
+    datasIntervalo[newCheckOut]
+
+    setReservations(reservation => reservation.map((_reservaton) => {
+      if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
+        return {
+          ..._reservaton,
+          CheckIn: datasIntervalo[newCheckIn],
+          CheckOut: datasIntervalo[newCheckOut]
+        }
+      }
+      return _reservaton
+    }))
+  };
+
+  const toggleAccordion = () => {
+    setAccordionOpen(!accordionOpen);
+  };
+
+  const convertCheckIn = (dateIn: any) => {
+    let CheckIn = new Date(dateIn);
+    let convertCheckIn = datasIntervalo.findIndex((date: any) => date.getTime() === CheckIn.getTime());
+    return convertCheckIn;
+  }
+
+
+  const convertCheckOut = (dateOut: any) => {
+    let CheckOut = new Date(dateOut);
+    let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime());
+    return convertCheckOut;
+  }
+
+
+  return (
+    <main className={styles.main}>
+      <div style={{ display: 'flex' }}>
+        <div >
+          <div style={{ display: 'flex', width: '80rem', overflow: 'auto', cursor: 'pointer' }} ref={div1}
+            onScroll={onScroll}
+            onMouseDown={handleMouseDownDiv}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}>
+            <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
+            <div className={styles.calendar}>
+              <div className={styles.daysContainer} >
+                {datasIntervalo.map((date: any, index: any) => (
+                  <div
+                    key={index}
+                    className={`${styles.day} ${styles.draggingOver}`}
+                    style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
+                  >
+                    <span style={{ userSelect: 'none' }}>{mesesAbreviados[date.getMonth()]}</span>
+                    <span style={{ textAlign: 'center', userSelect: 'none' }}>{date.getDate()}</span>
+                    <span style={{ userSelect: 'none' }}>{diasAbreviados[date.getDay()]}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      )}      
-    </div> 
+      </div>
+      <div style={{ width: '80rem' }}>
+        <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff', alignItems: 'center' }}>
+          Fiore Prime
+          <ArrowDropDownIcon></ArrowDropDownIcon>
+        </div>
 
+        {accordionOpen && (
+          <div>
+            {groupedReservationsList.map((objeto: any, indexA: any,) => {
+              debugger
+              // let indexData = 0;
+              return (
+                <div key={indexA}>
+                  <h2>IdImovel: {indexA}</h2>
+                  <div>
+                    <div style={{ marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
+                        div2.current[indexA] = element as any
+                      }} onScroll={onScroll}>
+                        <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
+                        <div className={styles.calendar}>
+                          <div className={styles.daysContainer}>
+                            {datasIntervalo.map((date: any, index: any) => {
+                              debugger
+                              return (
+                                <div
+                                  key={index}
+                                  className={`${styles.day} ${styles.draggingOver}`}
+                                  onDragOver={(event) => event.preventDefault()}
+                                  onDrop={(event) => handleDayDrop(event, index, objeto[indexA].IdReserva)}
+                                  style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
+                                >
+                                  <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
+                                  <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
+                                  <span className={styles.clipPath}>{diasAbreviados[date.getDay()]}</span>
+                                </div>
+                              )
+                            })}
 
-    <div>
-  <h3>DROP</h3>
-  <span>CHECK-IN : {droppedCheckIn ? droppedCheckIn.toDateString() : 'N/A'}</span><br/>
-  <span>CHECK-OUT : {droppedCheckOut ? droppedCheckOut.toDateString() : 'N/A'}</span>
-</div>
-    <div>
-      <h3>MouseMove</h3>
-      <span>CHECK-IN : {mouseCheckIn ? mouseCheckIn.toDateString() : 'N/A'}</span><br/>
-      <span>CHECK-OUT : {mouseCheckOut ? mouseCheckOut.toDateString() : 'N/A'}</span>
-    </div>              
+                            {objeto.map((reservation: any) => (
+                              <div
+                                className={`${styles.guest} ${styles.draggingGuest}`}
+                                style={{
+                                  left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
+                                  width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * dayWidth}px`,
+                                  cursor: 'move',
+                                  display: 'flex',
+                                  position: 'absolute',
+                                  justifyContent: 'space-between'
+                                }}
+                                draggable
+                              >
+                                <div
+                                  className={styles.checkInOut}
+                                  style={{
+                                    left: `0`,
+                                    cursor: 'col-resize',
+                                    background: 'black',
+                                    height: '100%',
+                                    width: '3px'
+                                  }}
+                                  onMouseDown={(e) => handleMouseDown(e, true, reservation)}
+                                >
+                                </div>
+                                <span>{reservation.Cliente}</span>
+                                <div
+                                  className={styles.checkInOut}
+                                  style={{
+                                    left: `0`,
+                                    cursor: 'col-resize',
+                                    background: 'black',
+                                    height: '100%',
+                                    width: '3px'
+                                  }}
+                                  onMouseDown={(e) => handleMouseDown(e, false, reservation)}
+                                >
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-  </main>
+      </div>
+    </main>
   )
 }
 

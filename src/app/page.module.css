@@ -77,6 +77,8 @@
   overflow: auto;
 }
 
+
+
 .day {
   width: 60px;
   height: 50px;
@@ -90,7 +92,7 @@
 }
 
 .guest {
-  position: absolute;
+  /* position: absolute; */
   top: 12px;
   height:25px;
   background-color: #94bce7;
@@ -105,6 +107,7 @@
 /* .guest:hover{
   background-color: #007bff;
 } */
+
 
 
 .preview {
