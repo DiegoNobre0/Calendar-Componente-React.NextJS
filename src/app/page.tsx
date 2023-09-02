@@ -327,8 +327,9 @@ export default function Home() {
                               )
                             })}
 
-                            {objeto.map((reservation: any) => (
+                            {objeto.map((reservation: any, index: any) => (
                               <div
+                                key={index}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
                                 style={{
                                   left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
