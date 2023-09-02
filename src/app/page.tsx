@@ -144,6 +144,7 @@ export default function Home() {
   };
 
   const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {
+    debugger
     event.preventDefault();
 
     const id = parseInt(reservationIndex);
@@ -204,16 +205,45 @@ export default function Home() {
     event.dataTransfer.setData('text/plain', '');
   };
 
-  const handleGuestDragEnd = () => {
-    // Restaurar qualquer estado necessário após o arrastar do hóspede
-  };
+  const handleGuestDragEnd = (event: any, day: any, reservationIndex: any) => {
+    
 
-
-  const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-    debugger
     event.preventDefault();
 
     const id = parseInt(reservationIndex);
+
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
+
+    const checkInDate = new Date(reservation.CheckIn);
+    const checkOutDate = new Date(reservation.CheckOut);
+
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
+
+    const newCheckIn = day;
+    const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
+
+    datasIntervalo[newCheckIn]
+    datasIntervalo[newCheckOut]
+
+    setReservations(reservation => reservation.map((_reservaton) => {
+      if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
+        return {
+          ..._reservaton,
+          CheckIn: datasIntervalo[newCheckIn],
+          CheckOut: datasIntervalo[newCheckOut]
+        }
+      }
+      return _reservaton
+    }))
+  };
+
+
+  const handleDayDrop = (event: any, day: any, date: any) => {
+    debugger
+    event.preventDefault();
+
+    const id = parseInt(day);
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
 
@@ -297,7 +327,7 @@ export default function Home() {
         {accordionOpen && (
           <div>
             {groupedReservationsList.map((objeto: any, indexA: any,) => {
-              debugger
+              // debugger
               // let indexData = 0;
               return (
                 <div key={indexA}>
@@ -310,14 +340,14 @@ export default function Home() {
                         <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
                         <div className={styles.calendar}>
                           <div className={styles.daysContainer}>
-                            {datasIntervalo.map((date: any, index: any) => {
-                              debugger
+                            {datasIntervalo.map((date: any, indexDate: any) => {
+                              // debugger
                               return (
                                 <div
-                                  key={index}
+                                  key={indexDate}
                                   className={`${styles.day} ${styles.draggingOver}`}
                                   onDragOver={(event) => event.preventDefault()}
-                                  onDrop={(event) => handleDayDrop(event, index, objeto[indexA].IdReserva)}
+                                  onDrop={(event) => handleDayDrop(event, indexDate, date )}
                                   style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
@@ -327,7 +357,9 @@ export default function Home() {
                               )
                             })}
 
-                            {objeto.map((reservation: any, index: any) => (
+                            {objeto.map((reservation: any, index: any) => {
+                              // debugger                              
+                              return (
                               <div
                                 key={index}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
@@ -340,6 +372,8 @@ export default function Home() {
                                   justifyContent: 'space-between'
                                 }}
                                 draggable
+                                onDragStart={handleGuestDragStart}
+                                // onDragEnd={(event) => handleGuestDragEnd(event, index, reservation.IdReserva)}
                               >
                                 <div
                                   className={styles.checkInOut}
@@ -350,7 +384,7 @@ export default function Home() {
                                     height: '100%',
                                     width: '3px'
                                   }}
-                                  onMouseDown={(e) => handleMouseDown(e, true, reservation)}
+                                  onMouseDown={(e) => handleMouseDown(e, true, reservation.IdReserva)}
                                 >
                                 </div>
                                 <span>{reservation.Cliente}</span>
@@ -363,11 +397,11 @@ export default function Home() {
                                     height: '100%',
                                     width: '3px'
                                   }}
-                                  onMouseDown={(e) => handleMouseDown(e, false, reservation)}
+                                  onMouseDown={(e) => handleMouseDown(e, false, reservation.IdReserva)}
                                 >
                                 </div>
                               </div>
-                            ))}
+                            )})}
                           </div>
                         </div>
                       </div>
@@ -378,7 +412,6 @@ export default function Home() {
             })}
           </div>
         )}
-
       </div>
     </main>
   )
