@@ -27,8 +27,6 @@ interface Reservation {
 
 export default function Home() {
 
-  const [draggedHospede, setDraggedHospede] = useState("");
-
   const [reservations, setReservations] = useState([
     {
       IdReserva: 1,
@@ -67,7 +65,8 @@ export default function Home() {
   const groupedReservations: any = groupReservationsByImovel(reservations);
 
 
-  function groupReservationsByImovel(reservations: any[]) {  
+  function groupReservationsByImovel(reservations: any[]) {
+    // debugger
     const groupedReservations: { [key: number]: any[] } = {};
 
     reservations.forEach((reservation: any) => {
@@ -105,8 +104,6 @@ export default function Home() {
     data.setDate(dataInicio.getDate() + i + 1);
     datasIntervalo.push(data);
   }
-
-  console.log(datasIntervalo)
 
   const dayWidth = 60;
 
@@ -150,7 +147,9 @@ export default function Home() {
     debugger
     event.preventDefault();
 
-    const reservation: any = reservations.find((reservation) => reservation.IdReserva === reservationIndex.IdReserva);
+    const id = parseInt(reservationIndex);
+
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
 
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
@@ -182,7 +181,7 @@ export default function Home() {
 
       setReservations(reservation => {
         reservation.forEach((_reservation) => {
-          if (_reservation.IdReserva === reservationIndex.IdReserva && checkInDate !== checkOutDate) {
+          if (_reservation.IdReserva === id && checkInDate !== checkOutDate) {
             _reservation.CheckIn = datasIntervalo[checkInDate];
             _reservation.CheckOut = datasIntervalo[checkOutDate];
           }
@@ -240,13 +239,11 @@ export default function Home() {
   };
 
 
-    const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-    event.preventDefault();
+  const handleDayDrop = (event: any, day: any, date: any) => {
     debugger
-    const jsonObject = JSON.parse(draggedHospede);
-    console.log(jsonObject)
-    const id = jsonObject.IdReserva;
+    event.preventDefault();
 
+    const id = parseInt(day);
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
 
@@ -291,14 +288,6 @@ export default function Home() {
     return convertCheckOut;
   }
 
-  const handleDrag = (e: any, index: any, hospede:any) =>{
-    const hospedeStringfy = JSON.stringify(hospede);
-    setDraggedHospede(hospedeStringfy);
-    const startY = e.clientY;
-    console.log(e)
-    
-  }
-
 
   return (
     <main className={styles.main}>
@@ -337,10 +326,9 @@ export default function Home() {
 
         {accordionOpen && (
           <div>
-            {groupedReservationsList.map((hospedes: any, indexA: any,) => {
+            {groupedReservationsList.map((objeto: any, indexA: any,) => {
               // debugger
               // let indexData = 0;
-              console.log(groupedReservationsList)
               return (
                 <div key={indexA}>
                   <h2>IdImovel: {indexA}</h2>
@@ -352,15 +340,14 @@ export default function Home() {
                         <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
                         <div className={styles.calendar}>
                           <div className={styles.daysContainer}>
-                            {datasIntervalo.map((date: any, index: any) => {
+                            {datasIntervalo.map((date: any, indexDate: any) => {
+                              // debugger
                               return (
                                 <div
                                   key={indexDate}
                                   className={`${styles.day} ${styles.draggingOver}`}
                                   onDragOver={(event) => event.preventDefault()}
-
-                                  onDrop={(event) => handleDayDrop(event, index, draggedHospede)}
-
+                                  onDrop={(event) => handleDayDrop(event, indexDate, date )}
                                   style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
@@ -369,8 +356,12 @@ export default function Home() {
                                 </div>
                               )
                             })}
-                            {hospedes.map((reservation: any, indexador: any) => (
+
+                            {objeto.map((reservation: any, index: any) => {
+                              // debugger                              
+                              return (
                               <div
+                                key={index}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
                                 style={{
                                   left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
@@ -381,7 +372,8 @@ export default function Home() {
                                   justifyContent: 'space-between'
                                 }}
                                 draggable
-                                onDrag={(event) => handleDrag(event, indexador, reservation)}
+                                onDragStart={handleGuestDragStart}
+                                // onDragEnd={(event) => handleGuestDragEnd(event, index, reservation.IdReserva)}
                               >
                                 <div
                                   className={styles.checkInOut}
