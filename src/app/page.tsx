@@ -266,7 +266,6 @@ export default function Home() {
     setDraggedHospede(hospedeStringfy);
     const startY = e.clientY;
     console.log(e)
-    
   }
 
 
