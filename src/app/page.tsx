@@ -147,6 +147,7 @@ export default function Home() {
   };
 
   const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {
+    debugger
     event.preventDefault();
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === reservationIndex.IdReserva);
@@ -205,18 +206,47 @@ export default function Home() {
     event.dataTransfer.setData('text/plain', '');
   };
 
-  const handleGuestDragEnd = () => {
-    // Restaurar qualquer estado necessário após o arrastar do hóspede
+  const handleGuestDragEnd = (event: any, day: any, reservationIndex: any) => {
+    
+
+    event.preventDefault();
+
+    const id = parseInt(reservationIndex);
+
+    const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
+
+    const checkInDate = new Date(reservation.CheckIn);
+    const checkOutDate = new Date(reservation.CheckOut);
+
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
+
+    const newCheckIn = day;
+    const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
+
+    datasIntervalo[newCheckIn]
+    datasIntervalo[newCheckOut]
+
+    setReservations(reservation => reservation.map((_reservaton) => {
+      if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
+        return {
+          ..._reservaton,
+          CheckIn: datasIntervalo[newCheckIn],
+          CheckOut: datasIntervalo[newCheckOut]
+        }
+      }
+      return _reservaton
+    }))
   };
 
 
-  const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-
+    const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
     event.preventDefault();
     debugger
     const jsonObject = JSON.parse(draggedHospede);
     console.log(jsonObject)
     const id = jsonObject.IdReserva;
+
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
 
@@ -323,13 +353,14 @@ export default function Home() {
                         <div className={styles.calendar}>
                           <div className={styles.daysContainer}>
                             {datasIntervalo.map((date: any, index: any) => {
-                      
                               return (
                                 <div
-                                  key={index}
+                                  key={indexDate}
                                   className={`${styles.day} ${styles.draggingOver}`}
                                   onDragOver={(event) => event.preventDefault()}
+
                                   onDrop={(event) => handleDayDrop(event, index, draggedHospede)}
+
                                   style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
@@ -338,7 +369,6 @@ export default function Home() {
                                 </div>
                               )
                             })}
-
                             {hospedes.map((reservation: any, indexador: any) => (
                               <div
                                 className={`${styles.guest} ${styles.draggingGuest}`}
@@ -362,7 +392,7 @@ export default function Home() {
                                     height: '100%',
                                     width: '3px'
                                   }}
-                                  onMouseDown={(e) => handleMouseDown(e, true, reservation)}
+                                  onMouseDown={(e) => handleMouseDown(e, true, reservation.IdReserva)}
                                 >
                                 </div>
                                 <span>{reservation.Cliente}</span>
@@ -375,11 +405,11 @@ export default function Home() {
                                     height: '100%',
                                     width: '3px'
                                   }}
-                                  onMouseDown={(e) => handleMouseDown(e, false, reservation)}
+                                  onMouseDown={(e) => handleMouseDown(e, false, reservation.IdReserva)}
                                 >
                                 </div>
                               </div>
-                            ))}
+                            )})}
                           </div>
                         </div>
                       </div>
@@ -390,7 +420,6 @@ export default function Home() {
             })}
           </div>
         )}
-
       </div>
     </main>
   )
