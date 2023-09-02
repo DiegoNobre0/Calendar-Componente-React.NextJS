@@ -340,6 +340,7 @@ export default function Home() {
 
                             {hospedes.map((reservation: any, indexador: any) => (
                               <div
+                                key={indexador}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
                                 style={{
                                   left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
