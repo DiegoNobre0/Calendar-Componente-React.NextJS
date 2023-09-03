@@ -33,8 +33,7 @@ export default function Home() {
     {
       IdReserva: 1,
       Cliente: "Hospede 1",
-      IdImovel: 1,
-      NumeroImovel: "QUARTO 1",
+      IdImovel: 1,     
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-08-01",
@@ -44,8 +43,7 @@ export default function Home() {
     {
       IdReserva: 2,
       Cliente: "Hospede 2",
-      IdImovel: 1,
-      NumeroImovel: "QUARTO 1",
+      IdImovel: 1,      
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-07-28",
@@ -55,35 +53,53 @@ export default function Home() {
     {
       IdReserva: 3,
       Cliente: "Hospede 3",
-      IdImovel: 2,
-      NumeroImovel: "QUARTO 2",
+      IdImovel: 2,      
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-08-05",
       CheckOut: "2023-08-06"
+    },
+
+    {
+      IdReserva: 4,
+      Cliente: "Hospede 4",
+      IdImovel: 3,    
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-07-29",
+      CheckOut: "2023-08-01"
     }
   ]);
 
-  const groupedReservations: any = groupReservationsByImovel(reservations);
 
+  const [bedrooms, setBedrooms] = useState([
+    {     
+      IdImovel: 1,
+      NomeQuarto: "QUARTO 1"    
+    },
+    {    
+      IdImovel: 2,
+      NomeQuarto: "QUARTO 2"      
+    },
+    {    
+      IdImovel: 3,
+      NomeQuarto: "QUARTO 3"      
+    }
+  ]);
+  
 
-  function groupReservationsByImovel(reservations: any[]) {  
-    const groupedReservations: { [key: number]: any[] } = {};
-
-    reservations.forEach((reservation: any) => {
-      const { IdImovel } = reservation;
-      if (!groupedReservations[IdImovel]) {
-        groupedReservations[IdImovel] = [];
-      }
-      groupedReservations[IdImovel].push(reservation);
-    });
-    console.log(groupedReservations)
-    return groupedReservations;
-  }
-
-  const groupedReservationsList = Object.values(groupedReservations);
-
-  console.log(groupedReservationsList)
+  const reservationsByBedrooms: any = {};
+  // Inicializa as listas de reservas para cada quarto
+  bedrooms.forEach(bedrooms => {
+    reservationsByBedrooms[bedrooms.IdImovel] = [];
+  });  
+  // Preenche as listas de reservas para cada quarto
+  reservations.forEach(reservation => {
+    const { IdImovel } = reservation;    
+    reservationsByBedrooms[IdImovel].push(reservation);
+  });
+  
+  const groupedReservationsList = Object.values(reservationsByBedrooms);    
 
   const dataInicio: any = new Date('2023-07-26');
   const dataFim: any = new Date('2023-08-30');
@@ -98,7 +114,7 @@ export default function Home() {
   for (let i = 0; i <= intervalo; i++) {
     if (i == 0) {
       const data = new Date(dataInicio);
-      data.setDate(dataInicio.getDate() + i);
+      data.setDate(dataInicio.getDate() + i + 1);
       datasIntervalo.push(data);
     }
     const data = new Date(dataInicio);
@@ -106,15 +122,12 @@ export default function Home() {
     datasIntervalo.push(data);
   }
 
-  console.log(datasIntervalo)
-
   const dayWidth = 60;
 
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
-
 
   const div2 = useRef<HTMLDivElement[]>([]);
   const div1: any = useRef<HTMLDivElement>(null);
@@ -189,7 +202,6 @@ export default function Home() {
 
         return [...reservation];
       });
-
     };
 
     const handleMouseUp = () => {
@@ -205,20 +217,36 @@ export default function Home() {
     event.dataTransfer.setData('text/plain', '');
   };
 
-  const handleGuestDragEnd = () => {
-    // Restaurar qualquer estado necessário após o arrastar do hóspede
-  };
+  // const handleGuestDragEnd = () => {
+  //   // Restaurar qualquer estado necessário após o arrastar do hóspede
+  // };
 
+  // const teste = (teste: any) => {
+
+  // }
 
   const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-
     event.preventDefault();
-    debugger
-    const jsonObject = JSON.parse(draggedHospede);
-    console.log(jsonObject)
+ 
+    const jsonObject = JSON.parse(draggedHospede);   
+
     const id = jsonObject.IdReserva;
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === id);
+
+    const idImovel = jsonObject.IdImovel;
+
+    const clientY = Math.ceil((event.clientY / 60) - 2);
+
+    setReservations(reservation => reservation.map((_reservaton) => {
+      if (_reservaton.IdReserva === id && idImovel !== clientY) {
+        return {
+          ..._reservaton,
+          IdImovel: clientY            
+        }
+      }
+        return _reservaton
+      }))    
 
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
@@ -254,20 +282,40 @@ export default function Home() {
     return convertCheckIn;
   }
 
-
   const convertCheckOut = (dateOut: any) => {
     let CheckOut = new Date(dateOut);
     let convertCheckOut = datasIntervalo.findIndex((date: any) => date.getTime() === CheckOut.getTime());
     return convertCheckOut;
   }
 
-  const handleDrag = (e: any, index: any, hospede:any) =>{
+  const handleDrag = (e: any, index: any, hospede:any) =>{   
     const hospedeStringfy = JSON.stringify(hospede);
-    setDraggedHospede(hospedeStringfy);
-    const startY = e.clientY;
-    console.log(e)
+    setDraggedHospede(hospedeStringfy);  
   }
 
+  const teste = (event : any, date: any) => {
+  debugger
+
+  const clientY = Math.ceil((event.clientY / 60) - 2);
+
+  const newReservation = {
+    IdReserva: 5,
+    Cliente: "Hospede 5",
+    IdImovel: clientY,
+    NomeHotel: "Fiore Prime", 
+    IdHotel: 1,
+    CheckIn: datasIntervalo[date],
+    CheckOut: datasIntervalo[date + 1]
+  };
+
+  const newReservations = [...reservations];
+
+  // Adicione o novo objeto ao final da cópia
+  newReservations.push(newReservation);
+
+  // Atualize o estado com a nova cópia
+  setReservations(newReservations);
+}
 
   return (
     <main className={styles.main}>
@@ -279,7 +327,7 @@ export default function Home() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}>
-            <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
+            <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE</div>
             <div className={styles.calendar}>
               <div className={styles.daysContainer} >
                 {datasIntervalo.map((date: any, index: any) => (
@@ -306,29 +354,27 @@ export default function Home() {
 
         {accordionOpen && (
           <div>
-            {groupedReservationsList.map((hospedes: any, indexA: any,) => {
-              // debugger
-              // let indexData = 0;
-              console.log(groupedReservationsList)
+            {groupedReservationsList.map((hospedes: any, index: any,) => {                    
+              // debugger 
               return (
-                <div key={indexA}>
-                  <h2>IdImovel: {indexA}</h2>
+                <div key={index}>                 
                   <div>
-                    <div style={{ marginBottom: '20px' }}>
+                    <div >
                       <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
-                        div2.current[indexA] = element as any
+                        div2.current[index] = element as any
                       }} onScroll={onScroll}>
-                        <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE0</div>
+                        <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE</div>
                         <div className={styles.calendar}>
                           <div className={styles.daysContainer}>
-                            {datasIntervalo.map((date: any, index: any) => {
-                      
+                            {datasIntervalo.map((date: any, index: any) => {                      
                               return (
                                 <div
                                   key={index}
                                   className={`${styles.day} ${styles.draggingOver}`}
                                   onDragOver={(event) => event.preventDefault()}
                                   onDrop={(event) => handleDayDrop(event, index, draggedHospede)}
+                                  onClick={(event) => teste(event, index)}
+                                  // onMouseDown={(e) => teste(e)}
                                   style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
@@ -340,10 +386,12 @@ export default function Home() {
 
                             {hospedes.map((reservation: any, indexador: any) => (
                               <div
+                                key={indexador}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
                                 style={{
                                   left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
                                   width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * dayWidth}px`,
+                                  height: `${dayWidth/2}px`,
                                   cursor: 'move',
                                   display: 'flex',
                                   position: 'absolute',
@@ -389,7 +437,6 @@ export default function Home() {
             })}
           </div>
         )}
-
       </div>
     </main>
   )
