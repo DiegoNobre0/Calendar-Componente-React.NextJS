@@ -26,8 +26,8 @@ export default function Home() {
       IdImovel: 1,     
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
-      CheckIn: "2023-08-01",
-      CheckOut: "2023-08-03"
+      CheckIn: "2023-08-01T12:00:00",
+      CheckOut: "2023-08-03T12:00:00"
     },
 
     {
@@ -36,8 +36,8 @@ export default function Home() {
       IdImovel: 1,      
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
-      CheckIn: "2023-07-28",
-      CheckOut: "2023-07-30"
+      CheckIn: "2023-07-28T12:00:00",
+      CheckOut: "2023-07-30T12:00:00"
     },
 
     {
@@ -46,8 +46,8 @@ export default function Home() {
       IdImovel: 2,      
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
-      CheckIn: "2023-08-05",
-      CheckOut: "2023-08-06"
+      CheckIn: "2023-08-05T12:00:00",
+      CheckOut: "2023-08-06T12:00:00"
     },
 
     {
@@ -56,8 +56,8 @@ export default function Home() {
       IdImovel: 3,    
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
-      CheckIn: "2023-07-29",
-      CheckOut: "2023-08-01"
+      CheckIn: "2023-07-29T12:00:00",
+      CheckOut: "2023-08-01T12:00:00"
     }
   ]);
 
@@ -91,8 +91,8 @@ export default function Home() {
   
   const groupedReservationsList = Object.values(reservationsByBedrooms);    
 
-  const dataInicio: any = new Date('2023-07-26');
-  const dataFim: any = new Date('2023-08-30');
+  const dataInicio: any = new Date('2023-07-26T12:00:00');
+  const dataFim: any = new Date('2023-08-30T12:00:00');
 
   const mesesAbreviados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const diasAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -101,16 +101,18 @@ export default function Home() {
 
   const datasIntervalo: any = [];
 
-  for (let i = 0; i <= intervalo; i++) {
-    if (i == 0) {
-      const data = new Date(dataInicio);
-      data.setDate(dataInicio.getDate() + i + 1);
-      datasIntervalo.push(data);
-    }
+  for (let i = 0; i <= intervalo; i++) {    
+    // if (i == 0) {
+    //   const data = new Date(dataInicio);
+    //   data.setDate(dataInicio.getDate());
+    //   datasIntervalo.push(data);
+    // }
     const data = new Date(dataInicio);
-    data.setDate(dataInicio.getDate() + i + 1);
+    data.setDate(dataInicio.getDate() + i);
     datasIntervalo.push(data);
   }
+
+  console.log(datasIntervalo)
 
   const dayWidth = 60;
 
@@ -213,9 +215,9 @@ export default function Home() {
 
 
   const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-    // debugger
+    debugger
     event.preventDefault();
- 
+    
     const jsonObject = JSON.parse(draggedHospede);   
 
     const id = jsonObject.IdReserva;
@@ -239,8 +241,8 @@ export default function Home() {
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
 
-    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
-    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
+    const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()));
+    const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()));
     
     const newCheckIn = day;    
     const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
@@ -256,26 +258,6 @@ export default function Home() {
       return _reservaton
     }))
   };
-
-  // const checkDateIn = (checkIn: any) =>{
-  //   debugger  
-
-  //   reservations.forEach(reservation => {
-  //     debugger
-  //     const checkInDate = new Date(reservation.CheckIn);
-  //     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1)
-      
-  //     if(checkIn === checkInIndex){
-  //       return 1;
-  //     }
-  //   });  
-  //   return 1; 
-  // }
-
-  // const checkDateout = (checkOut: any) =>{
-  //   let teste = 1;
-  //   return teste
-  // }
 
   const toggleAccordion = () => {
     setAccordionOpen(!accordionOpen);
@@ -323,28 +305,45 @@ export default function Home() {
 
 const allowDrop = (event : any) => {
   event.preventDefault();
-  event.target.style.border = "4px dotted green";
-}
+ 
+};
 
+// const handleDragLeave = (event: any) => {
+//   event.preventDefault();
+    
+//   const jsonObject = JSON.parse(draggedHospede);  
+//   event.target.style.top ='12px'
+//   event.target.style.height = '25px'
+//   event.target.style.backgroundColor = '#94bce7'
+//   event.target.style.display = 'flex'
+//   event.target.style.alignItems= 'center'
+//   event.target.style.justifycontent= 'center'
+//   event.target.style.border= '1px solid #0056b3'
+//   event.target.style.transform = 'skewX(-35deg)'
+//   event.target.style.width = `${((convertCheckOut(jsonObject.CheckOut) + 1) - convertCheckIn(jsonObject.CheckIn)) * dayWidth}px`
+//   event.target.style.left= `${convertCheckIn(jsonObject.CheckIn) * dayWidth}px`
+
+// };
+console.log(groupedReservationsList)
 
   return (
     <main className={styles.main}>
       <div style={{ display: 'flex' }}>
-        <div >
-          <div style={{ display: 'flex', width: '80rem', overflow: 'auto', cursor: 'pointer' }} ref={div1}
+        <div style={{display: 'flex'}} >
+          <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px #ccc' }}></div>
+          <div style={{ display: 'flex', width: '68rem', overflow: 'auto', cursor: 'pointer' }} ref={div1}
             onScroll={onScroll}
             onMouseDown={handleMouseDownDiv}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}>
-            <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE</div>
             <div className={styles.calendar}>
               <div className={styles.daysContainer} >
                 {datasIntervalo.map((date: any, index: any) => (
                   <div
                     key={index}
                     className={`${styles.day} ${styles.draggingOver}`}
-                    style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
+                    style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? '#F0F8FF' : 'white' }}
                   >
                     <span style={{ userSelect: 'none' }}>{mesesAbreviados[date.getMonth()]}</span>
                     <span style={{ textAlign: 'center', userSelect: 'none' }}>{date.getDate()}</span>
@@ -356,36 +355,34 @@ const allowDrop = (event : any) => {
           </div>
         </div>
       </div>
-      <div style={{ width: '80rem' }}>
-        <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff', alignItems: 'center' }}>
-          Fiore Prime
-        <ArrowDropDownIcon></ArrowDropDownIcon>
-        </div>
-
+      <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', background: '#fff', alignItems: 'center', borderTop: 'solid 1px #ccc', fontSize:'14px' }}>
+      <ArrowDropDownIcon></ArrowDropDownIcon>
+         Fiore Prime
+      </div>     
         {accordionOpen && (
-          <div>
-            {groupedReservationsList.map((hospedes: any, index: any,) => {                    
-              // debugger 
+          <div style={{ display: 'flex' , flexDirection:'column'}}>        
+            {groupedReservationsList.map((hospedes: any, index: any,) => {   
               return (
-                <div key={index}>                 
-                  <div>
-                    <div >
-                      <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
+                <div key={index} style={{display:'flex', borderTop: 'solid  #ccc'}}>
+                    <div style={{ width: '20rem', backgroundColor: '#fff', borderRight: 'solid 3px #ccc', display: 'flex', justifyContent: 'end', flexDirection:  'column', fontSize:'13px'  }}>
+                      <span>
+                        Quarto {index + 1}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', overflow: 'hidden' }} ref={(element) => {
                         div2.current[index] = element as any
                       }} onScroll={onScroll}>
-                        <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px' }}>TESTE</div>
                         <div className={styles.calendar}>
                           <div className={styles.daysContainer}>
                             {datasIntervalo.map((date: any, index: any) => {                      
                               return (
                                 <div
                                   key={index}
-                                  className={`${styles.day} ${styles.draggingOver}`}
-                                  // onDragOver={(event) => event.preventDefault()}
+                                  className={`${styles.day} ${styles.draggingOver}`}    
+                                  onDragOver={(event) => allowDrop(event)}                                
                                   onDrop={(event) => handleDayDrop(event, index, draggedHospede)}
-                                  onClick={(event) => addReservation(event, index)}  
-                                  onDragOver={(event) => allowDrop(event)}                                 
-                                  style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
+                                  onClick={(event) => addReservation(event, index)}   
+                                  style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? '#F0F8FF' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
                                   <span className={styles.clipPath} style={{ textAlign: 'center' }}>{date.getDate()}</span>
@@ -399,8 +396,8 @@ const allowDrop = (event : any) => {
                                 key={indexador}
                                 className={`${styles.guest} ${styles.draggingGuest}`}
                                 style={{
-                                  left: `${convertCheckIn(reservation.CheckIn) * dayWidth}px`,
-                                  width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * dayWidth}px`,
+                                  left: `${(convertCheckIn(reservation.CheckIn) * dayWidth)}px`,
+                                  width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * 60}px`,
                                   height: `${dayWidth/2}px`,
                                   cursor: 'move',
                                   display: 'flex',
@@ -417,7 +414,7 @@ const allowDrop = (event : any) => {
                                     cursor: 'col-resize',
                                     background: 'black',
                                     height: '100%',
-                                    width: '3px'
+                                    width: '2px'
                                   }}
                                   onMouseDown={(e) => handleMouseDown(e, true, reservation)}
                                 >
@@ -430,7 +427,7 @@ const allowDrop = (event : any) => {
                                     cursor: 'col-resize',
                                     background: 'black',
                                     height: '100%',
-                                    width: '3px'
+                                    width: '2px'
                                   }}
                                   onMouseDown={(e) => handleMouseDown(e, false, reservation)}
                                 >
@@ -441,13 +438,29 @@ const allowDrop = (event : any) => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+              
+      
               )
             })}
           </div>
-        )}
-      </div>
+        )}   
+      <div style={{ display: 'flex', background:'white', padding: '4rem', justifyContent: 'space-evenly' }}>             
+        <div>
+          <span style={{fontSize:'13px'}}>Bloqueada</span>
+        </div>           
+        <div>
+          <span style={{fontSize:'13px'}}>Confirmada</span>
+        </div>
+        <div>
+          <span style={{fontSize:'13px'}}>Manutenção</span>
+        </div>
+        <div>
+          <span style={{fontSize:'13px'}}>Pedente</span>
+        </div>
+        <div>
+          <span style={{fontSize:'13px'}}>Financeiro Aberto</span>
+        </div>
+      </div>  
     </main>
   )
 }
