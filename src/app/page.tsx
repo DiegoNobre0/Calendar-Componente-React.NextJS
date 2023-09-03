@@ -14,16 +14,6 @@ import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { log } from 'console';
 
-interface Reservation {
-  IdReserva: number;
-  Cliente: string;
-  IdImovel: number;
-  NumeroImovel: string;
-  NomeHotel: string;
-  IdHotel: number;
-  CheckIn: string;
-  CheckOut: string;
-}
 
 export default function Home() {
 
@@ -159,7 +149,7 @@ export default function Home() {
     setDragging(false);
   };
 
-  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {
+  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {    
     event.preventDefault();
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === reservationIndex.IdReserva);
@@ -213,19 +203,17 @@ export default function Home() {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleGuestDragStart = (event: any) => {
-    event.dataTransfer.setData('text/plain', '');
-  };
+  // const handleGuestDragStart = (event: any) => {
+  //   event.dataTransfer.setData('text/plain', '');
+  // };
 
   // const handleGuestDragEnd = () => {
   //   // Restaurar qualquer estado necessário após o arrastar do hóspede
   // };
 
-  // const teste = (teste: any) => {
-
-  // }
 
   const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
+    // debugger
     event.preventDefault();
  
     const jsonObject = JSON.parse(draggedHospede);   
@@ -246,19 +234,16 @@ export default function Home() {
         }
       }
         return _reservaton
-      }))    
+    }))    
 
     const checkInDate = new Date(reservation.CheckIn);
     const checkOutDate = new Date(reservation.CheckOut);
 
     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1);
     const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()) + 1);
-
-    const newCheckIn = day;
+    
+    const newCheckIn = day;    
     const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
-
-    datasIntervalo[newCheckIn]
-    datasIntervalo[newCheckOut]
 
     setReservations(reservation => reservation.map((_reservaton) => {
       if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
@@ -271,6 +256,26 @@ export default function Home() {
       return _reservaton
     }))
   };
+
+  // const checkDateIn = (checkIn: any) =>{
+  //   debugger  
+
+  //   reservations.forEach(reservation => {
+  //     debugger
+  //     const checkInDate = new Date(reservation.CheckIn);
+  //     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()) + 1)
+      
+  //     if(checkIn === checkInIndex){
+  //       return 1;
+  //     }
+  //   });  
+  //   return 1; 
+  // }
+
+  // const checkDateout = (checkOut: any) =>{
+  //   let teste = 1;
+  //   return teste
+  // }
 
   const toggleAccordion = () => {
     setAccordionOpen(!accordionOpen);
@@ -291,10 +296,10 @@ export default function Home() {
   const handleDrag = (e: any, index: any, hospede:any) =>{   
     const hospedeStringfy = JSON.stringify(hospede);
     setDraggedHospede(hospedeStringfy);  
+    console.log(e)
   }
 
-  const teste = (event : any, date: any) => {
-  debugger
+  const addReservation = (event : any, date: any) => {
 
   const clientY = Math.ceil((event.clientY / 60) - 2);
 
@@ -310,12 +315,17 @@ export default function Home() {
 
   const newReservations = [...reservations];
 
-  // Adicione o novo objeto ao final da cópia
   newReservations.push(newReservation);
-
-  // Atualize o estado com a nova cópia
+ 
   setReservations(newReservations);
 }
+
+
+const allowDrop = (event : any) => {
+  event.preventDefault();
+  event.target.style.border = "4px dotted green";
+}
+
 
   return (
     <main className={styles.main}>
@@ -349,7 +359,7 @@ export default function Home() {
       <div style={{ width: '80rem' }}>
         <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', borderTop: 'solid 1px', borderBottom: 'solid 1px', background: '#fff', alignItems: 'center' }}>
           Fiore Prime
-          <ArrowDropDownIcon></ArrowDropDownIcon>
+        <ArrowDropDownIcon></ArrowDropDownIcon>
         </div>
 
         {accordionOpen && (
@@ -371,10 +381,10 @@ export default function Home() {
                                 <div
                                   key={index}
                                   className={`${styles.day} ${styles.draggingOver}`}
-                                  onDragOver={(event) => event.preventDefault()}
+                                  // onDragOver={(event) => event.preventDefault()}
                                   onDrop={(event) => handleDayDrop(event, index, draggedHospede)}
-                                  onClick={(event) => teste(event, index)}
-                                  // onMouseDown={(e) => teste(e)}
+                                  onClick={(event) => addReservation(event, index)}  
+                                  onDragOver={(event) => allowDrop(event)}                                 
                                   style={{ backgroundColor: (diasAbreviados[date.getDay()] === 'Dom' || diasAbreviados[date.getDay()] === 'Sáb') ? 'gray' : 'white' }}
                                 >
                                   <span className={styles.clipPath}>{mesesAbreviados[date.getMonth()]}</span>
