@@ -255,13 +255,13 @@ export default function Home() {
     let newCheckIn = day;    
     let newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
 
-    const check = checkDate(newCheckIn, newCheckOut);
+    // const check = checkDate(newCheckIn, newCheckOut);
 
-    if(check === true){
-      debugger
-      newCheckIn = checkInIndex;
-      newCheckOut = checkOutIndex;
-    };
+    // if(check === true){
+    //   debugger
+    //   newCheckIn = checkInIndex;
+    //   newCheckOut = checkOutIndex;
+    // };
 
     setReservations(reservation => reservation.map((_reservaton) => {
       if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
