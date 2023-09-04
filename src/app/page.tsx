@@ -12,6 +12,8 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import CircleIcon from '@mui/icons-material/Circle';
+import SquareIcon from '@mui/icons-material/Square';
 import { log } from 'console';
 
 
@@ -27,7 +29,8 @@ export default function Home() {
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-08-01T12:00:00",
-      CheckOut: "2023-08-03T12:00:00"
+      CheckOut: "2023-08-03T12:00:00",
+      Status: 'Bloqueado'
     },
 
     {
@@ -37,7 +40,8 @@ export default function Home() {
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-07-28T12:00:00",
-      CheckOut: "2023-07-30T12:00:00"
+      CheckOut: "2023-07-30T12:00:00",
+      Status: 'Confirmada'
     },
 
     {
@@ -47,7 +51,8 @@ export default function Home() {
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-08-05T12:00:00",
-      CheckOut: "2023-08-06T12:00:00"
+      CheckOut: "2023-08-06T12:00:00",
+      Status: 'Manutenção'
     },
 
     {
@@ -57,7 +62,19 @@ export default function Home() {
       NomeHotel: "Fiore Prime",
       IdHotel: 1,
       CheckIn: "2023-07-29T12:00:00",
-      CheckOut: "2023-08-01T12:00:00"
+      CheckOut: "2023-08-01T12:00:00",
+      Status: 'Pendente'
+    },
+
+    {
+      IdReserva: 5,
+      Cliente: "Hospede 5",
+      IdImovel: 4,    
+      NomeHotel: "Fiore Prime",
+      IdHotel: 1,
+      CheckIn: "2023-07-29T12:00:00",
+      CheckOut: "2023-08-01T12:00:00",
+      Status: 'Financeiro Aberto'
     }
   ]);
 
@@ -74,6 +91,10 @@ export default function Home() {
     {    
       IdImovel: 3,
       NomeQuarto: "QUARTO 3"      
+    },
+    {    
+      IdImovel: 4,
+      NomeQuarto: "QUARTO 4"      
     }
   ]);
   
@@ -101,12 +122,7 @@ export default function Home() {
 
   const datasIntervalo: any = [];
 
-  for (let i = 0; i <= intervalo; i++) {    
-    // if (i == 0) {
-    //   const data = new Date(dataInicio);
-    //   data.setDate(dataInicio.getDate());
-    //   datasIntervalo.push(data);
-    // }
+  for (let i = 0; i <= intervalo; i++) {   
     const data = new Date(dataInicio);
     data.setDate(dataInicio.getDate() + i);
     datasIntervalo.push(data);
@@ -151,7 +167,8 @@ export default function Home() {
     setDragging(false);
   };
 
-  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {    
+  const handleMouseDown = (event: any, isCheckIn: any, reservationIndex: any) => {   
+    debugger 
     event.preventDefault();
 
     const reservation: any = reservations.find((reservation) => reservation.IdReserva === reservationIndex.IdReserva);
@@ -169,8 +186,8 @@ export default function Home() {
 
       const offsetX = event.clientX - startX;
       const newLeft = offsetX + startLeft;
-
-      const newDay = Math.max(1, Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth)));
+      debugger
+      const newDay = Math.max(0,Math.min(datasIntervalo.length, Math.floor(newLeft / dayWidth)));
 
       let checkInDate: number;
       let checkOutDate: number;
@@ -205,17 +222,8 @@ export default function Home() {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  // const handleGuestDragStart = (event: any) => {
-  //   event.dataTransfer.setData('text/plain', '');
-  // };
-
-  // const handleGuestDragEnd = () => {
-  //   // Restaurar qualquer estado necessário após o arrastar do hóspede
-  // };
-
-
   const handleDayDrop = (event: any, day: any, reservationIndex: any) => {
-    debugger
+    // debugger
     event.preventDefault();
     
     const jsonObject = JSON.parse(draggedHospede);   
@@ -244,8 +252,16 @@ export default function Home() {
     const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkInDate.getTime()));
     const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === checkOutDate.getTime()));
     
-    const newCheckIn = day;    
-    const newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
+    let newCheckIn = day;    
+    let newCheckOut = newCheckIn + (checkOutIndex - checkInIndex);
+
+    const check = checkDate(newCheckIn, newCheckOut);
+
+    if(check === true){
+      debugger
+      newCheckIn = checkInIndex;
+      newCheckOut = checkOutIndex;
+    };
 
     setReservations(reservation => reservation.map((_reservaton) => {
       if (_reservaton.IdReserva === id && newCheckIn !== newCheckOut) {
@@ -258,6 +274,26 @@ export default function Home() {
       return _reservaton
     }))
   };
+
+  const checkDate = (checkIn: any, checkOut: any) => {
+debugger
+    const CheckIn =  checkIn;
+    const CheckOut=  checkOut;
+
+    for (const reservation of reservations) {
+      const reservationCheckIn = new Date(reservation.CheckIn);
+      const reservationCheckOut = new Date(reservation.CheckOut);
+
+      const checkInIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === reservationCheckIn.getTime()));
+      const checkOutIndex = (datasIntervalo.findIndex((date: any) => date.getTime() === reservationCheckOut.getTime()));
+  
+      // Verifica se as datas do objeto correspondem às datas de entrada
+      if ( CheckIn >= checkInIndex && CheckOut <= checkOutIndex ) {
+        return true; // Encontrou uma correspondência, retorna true
+      }
+    }
+    return false
+  }
 
   const toggleAccordion = () => {
     setAccordionOpen(!accordionOpen);
@@ -282,17 +318,23 @@ export default function Home() {
   }
 
   const addReservation = (event : any, date: any) => {
-
+debugger
   const clientY = Math.ceil((event.clientY / 60) - 2);
 
+  const lastReservation = reservations[reservations.length - 1];
+  const lastId = lastReservation ? lastReservation.IdReserva : 0;
+
+  const newId = lastId + 1;
+
   const newReservation = {
-    IdReserva: 5,
-    Cliente: "Hospede 5",
+    IdReserva: newId,
+    Cliente: `Hospede ${newId}`,
     IdImovel: clientY,
     NomeHotel: "Fiore Prime", 
     IdHotel: 1,
     CheckIn: datasIntervalo[date],
-    CheckOut: datasIntervalo[date + 1]
+    CheckOut: datasIntervalo[date + 1],
+    Status: "Bloqueado"
   };
 
   const newReservations = [...reservations];
@@ -308,26 +350,25 @@ const allowDrop = (event : any) => {
  
 };
 
-// const handleDragLeave = (event: any) => {
-//   event.preventDefault();
-    
-//   const jsonObject = JSON.parse(draggedHospede);  
-//   event.target.style.top ='12px'
-//   event.target.style.height = '25px'
-//   event.target.style.backgroundColor = '#94bce7'
-//   event.target.style.display = 'flex'
-//   event.target.style.alignItems= 'center'
-//   event.target.style.justifycontent= 'center'
-//   event.target.style.border= '1px solid #0056b3'
-//   event.target.style.transform = 'skewX(-35deg)'
-//   event.target.style.width = `${((convertCheckOut(jsonObject.CheckOut) + 1) - convertCheckIn(jsonObject.CheckIn)) * dayWidth}px`
-//   event.target.style.left= `${convertCheckIn(jsonObject.CheckIn) * dayWidth}px`
-
-// };
-console.log(groupedReservationsList)
+const getStatusColorAndName = (status: any) => {
+  switch (status) {
+    case 'Bloqueado':
+      return  'solid 4px green';      
+    case 'Confirmada':
+      return 'solid 4px blue';  
+    case 'Manutenção':
+      return 'solid 4px #616161';
+    case 'Pendente':
+      return 'solid 4px yellow';
+    case 'Financeiro Aberto':
+      return 'solid 4px red';
+    default:
+      return { color: '', name: '' };
+  }
+};
 
   return (
-    <main className={styles.main}>
+    <main className={styles.main} style={{backgroundColor: 'white'}}>
       <div style={{ display: 'flex' }}>
         <div style={{display: 'flex'}} >
           <div style={{ width: '10rem', backgroundColor: '#fff', borderRight: 'solid 3px #ccc' }}></div>
@@ -355,16 +396,16 @@ console.log(groupedReservationsList)
           </div>
         </div>
       </div>
-      <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', background: '#fff', alignItems: 'center', borderTop: 'solid 1px #ccc', fontSize:'14px' }}>
+      <div onClick={toggleAccordion} style={{ height: '2.5rem', display: 'flex', justifyContent: 'flex-start', background: '#fff', alignItems: 'center', borderTop: 'solid 1px #ccc', fontSize:'14px', borderBottom: 'solid 1px #ccc' }}>
       <ArrowDropDownIcon></ArrowDropDownIcon>
          Fiore Prime
       </div>     
         {accordionOpen && (
           <div style={{ display: 'flex' , flexDirection:'column'}}>        
-            {groupedReservationsList.map((hospedes: any, index: any,) => {   
+            {groupedReservationsList.map((hospedes: any, index: any) => {   
               return (
-                <div key={index} style={{display:'flex', borderTop: 'solid  #ccc'}}>
-                    <div style={{ width: '20rem', backgroundColor: '#fff', borderRight: 'solid 3px #ccc', display: 'flex', justifyContent: 'end', flexDirection:  'column', fontSize:'13px'  }}>
+                <div key={index} style={{display:'flex', transition: 'opacity 0.5s ease-in-out'}}>
+                    <div style={{ width: '20rem', backgroundColor: '#fff', borderRight: 'solid 3px #ccc', borderTop: 'solid 1px #ccc', borderBottom: 'solid 1px #ccc', display: 'flex', justifyContent: 'end', flexDirection:  'column', fontSize:'13px'  }}>
                       <span>
                         Quarto {index + 1}
                       </span>
@@ -399,6 +440,7 @@ console.log(groupedReservationsList)
                                   left: `${(convertCheckIn(reservation.CheckIn) * dayWidth)}px`,
                                   width: `${((convertCheckOut(reservation.CheckOut) + 1) - convertCheckIn(reservation.CheckIn)) * 60}px`,
                                   height: `${dayWidth/2}px`,
+                                  borderBottom: `${getStatusColorAndName(reservation.Status)}`,
                                   cursor: 'move',
                                   display: 'flex',
                                   position: 'absolute',
@@ -412,22 +454,22 @@ console.log(groupedReservationsList)
                                   style={{
                                     left: `0`,
                                     cursor: 'col-resize',
-                                    background: 'black',
+                                    background: '#94bce7',
                                     height: '100%',
-                                    width: '2px'
+                                    width: '3px'
                                   }}
                                   onMouseDown={(e) => handleMouseDown(e, true, reservation)}
                                 >
                                 </div>
-                                <span>{reservation.Cliente}</span>
+                                <span style={{fontSize:'10px'}}>{reservation.Cliente}</span>
                                 <div
                                   className={styles.checkInOut}
                                   style={{
                                     left: `0`,
                                     cursor: 'col-resize',
-                                    background: 'black',
+                                    background: '#94bce7',
                                     height: '100%',
-                                    width: '2px'
+                                    width: '3px'
                                   }}
                                   onMouseDown={(e) => handleMouseDown(e, false, reservation)}
                                 >
@@ -438,26 +480,29 @@ console.log(groupedReservationsList)
                         </div>
                       </div>
                     </div>
-              
-      
               )
             })}
           </div>
         )}   
-      <div style={{ display: 'flex', background:'white', padding: '4rem', justifyContent: 'space-evenly' }}>             
+      <div style={{ display: 'flex', background:'white', padding: '4rem', justifyContent: 'space-evenly', border: '1px solid #ccc', margin: '2rem' }}>             
         <div>
+          <SquareIcon style={{fontSize:'15px', color:'green'}}></SquareIcon>
           <span style={{fontSize:'13px'}}>Bloqueada</span>
         </div>           
         <div>
+          <SquareIcon style={{fontSize:'15px', color:'blue'}}></SquareIcon>
           <span style={{fontSize:'13px'}}>Confirmada</span>
         </div>
         <div>
+          <SquareIcon style={{fontSize:'15px', color:'#616161'}}></SquareIcon>
           <span style={{fontSize:'13px'}}>Manutenção</span>
         </div>
         <div>
-          <span style={{fontSize:'13px'}}>Pedente</span>
+          <SquareIcon style={{fontSize:'15px', color:'yellow'}}></SquareIcon>
+          <span style={{fontSize:'13px'}}>Pendente</span>
         </div>
         <div>
+          <CircleIcon style={{fontSize:'15px', color:'red'}}></CircleIcon>
           <span style={{fontSize:'13px'}}>Financeiro Aberto</span>
         </div>
       </div>  
